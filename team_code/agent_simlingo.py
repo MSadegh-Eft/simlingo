@@ -58,7 +58,7 @@ def get_entry_point():
     return 'LingoAgent'
 
 
-DEBUG = False # saves images during evaluation
+DEBUG = True # saves images during evaluation
 HD_VIZ = False
 USE_UKF = True
 
@@ -864,7 +864,7 @@ class LingoAgent(autonomous_agent.AutonomousAgent):
 
         del self.model
         del self.config
-        if self.cfg.data_module.encoder == 'llavanext':
+        if self.cfg.data_module.get('encoder', None) == 'llavanext':
             del self.processor
 
 
