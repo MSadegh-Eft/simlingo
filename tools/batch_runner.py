@@ -38,6 +38,7 @@ USAGE
 import argparse
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -107,12 +108,34 @@ REPETITIONS = 1
 
 MAX_RETRIES = 3
 
-# Generous placeholder per your go-ahead -- tune once you have real per-route
-# wall-clock numbers from this batch's own logs. This is a backstop against a
-# genuinely hung OS process; it sits well above the internal 600s watchdog/
-# client timeout on purpose, so internal mechanisms get first chance to fail
-# cleanly before this external cap ever fires.
-WALLCLOCK_CAP_SECONDS = 40 * 60  # 40 minutes
+# Redesigned twice. First pass used a flat elapsed-time cap -- wrong,
+# because it can't distinguish "naturally slow" from "actually stuck"
+# (route 4 hit it while genuinely progressing at 0.052x realtime). Second
+# pass added stall detection but kept a 3-hour absolute backstop on top --
+# also wrong: route 6 confirmed 74 real minutes for a route stuck
+# indecisively behind traffic, entirely healthy the whole time (Game time
+# never stopped advancing), and worse GPU contention than we've already
+# observed (0.015x) would need well over 3 hours for an equally healthy
+# route. Any fixed duration number is unsafe here, because contention is
+# unpredictable -- there's no number that's "long enough" that isn't also
+# sometimes wrong.
+#
+# What's actually invariant: SimLingo's own internal tick_count > 4000
+# cap (scenario_manager.py, confirmed from source) fires at exactly 200s
+# of SIMULATED time regardless of how long that takes in the real world --
+# so any route that's genuinely still ticking terminates on its own, no
+# matter how slow. The only thing that DOESN'T self-resolve is a true
+# stall: zero ticks happening at all (deadlock, frozen connection, a crash
+# that doesn't exit cleanly) -- tick_count just sits frozen forever in
+# that case, and the internal cap never gets the chance to fire. That's
+# the actual gap external supervision needs to cover, and it doesn't
+# require guessing a duration at all -- only "has any progress happened
+# recently", which is safe at any reasonable timeout since a healthy route
+# is never stuck at the identical Game time for this long, however slow
+# it is overall. Set comfortably above the internal 600s per-tick watchdog
+# so that gets first chance to resolve things on its own.
+STALL_TIMEOUT_SECONDS = 20 * 60  # 20 minutes with zero game-time progress = genuinely stuck
+
 
 GPU_CANDIDATES = [0, 1, 2]
 # Real incident on this box: memory.used alone picked GPU 0 while it sat at
@@ -121,6 +144,13 @@ GPU_CANDIDATES = [0, 1, 2]
 # Selection now screens by utilization FIRST (avoid compute-saturated GPUs
 # entirely), then breaks ties by memory.used among what's left.
 GPU_UTIL_THRESHOLD = 50  # percent -- placeholder, tune from what you observe day to day
+# GPU 2's real incident: 3.6GB free was clearly not enough (0.03x ratio,
+# 92% memory used). This is a placeholder set comfortably above that failure
+# point, not a measured requirement -- monitor_resources.py's RSS numbers
+# are real, but per-process GPU memory attribution isn't available on this
+# box (see its own notes), so there's no precise "CARLA+model actually need
+# N GB" figure to set this from yet. Tune once you have one.
+GPU_MIN_FREE_MEM_MB = 15000
 GPU_WAIT_POLL_SECONDS = 120
 GPU_MAX_WAIT_SECONDS = 20 * 60  # give up waiting and proceed with least-bad option after this long
 
@@ -228,10 +258,10 @@ def load_route_metadata():
 
 
 def query_gpu_stats():
-    """Returns {idx: {"mem_used": float, "util": float}} or {} on failure."""
+    """Returns {idx: {"mem_used": float, "mem_free": float, "util": float}} or {} on failure."""
     try:
         out = subprocess.check_output(
-            ["nvidia-smi", "--query-gpu=index,memory.used,utilization.gpu", "--format=csv,noheader,nounits"],
+            ["nvidia-smi", "--query-gpu=index,memory.used,memory.total,utilization.gpu", "--format=csv,noheader,nounits"],
             text=True,
             timeout=15,
         )
@@ -242,28 +272,30 @@ def query_gpu_stats():
     stats = {}
     for line in out.strip().splitlines():
         parts = [p.strip() for p in line.split(",")]
-        if len(parts) != 3:
+        if len(parts) != 4:
             continue
         try:
             idx = int(parts[0])
             mem_used = float(parts[1])
-            util = float(parts[2])
+            mem_total = float(parts[2])
+            util = float(parts[3])
         except ValueError:
             continue
         if idx in GPU_CANDIDATES:
-            stats[idx] = {"mem_used": mem_used, "util": util}
+            stats[idx] = {"mem_used": mem_used, "mem_free": mem_total - mem_used, "util": util}
     return stats
 
 
 def pick_gpu() -> int:
-    """Screens by utilization first (a GPU with low memory but 100% util is
-    a worse pick than one with more memory used but idle compute -- this is
-    the exact case that burned ~40 minutes running at 0.015x realtime on
-    this box). Waits and re-polls if every candidate is saturated, rather
-    than launching straight into a run likely to crawl or trip a watchdog
-    timeout; gives up and proceeds with the least-bad option after
-    GPU_MAX_WAIT_SECONDS so an unattended run doesn't stall forever if the
-    shared server stays busy."""
+    """Screens on BOTH utilization and free memory -- a candidate must clear
+    both to be considered usable. Two real, opposite incidents on this box
+    motivated this: GPU 0 had low memory but 100% util (burned ~40 min at
+    0.015x realtime), and GPU 2 had low util (6%) but only ~3.6GB free out
+    of 46GB (crawled at 0.03x with compute nearly idle) -- neither axis
+    alone is a reliable screen. Waits and re-polls if no candidate clears
+    both, rather than launching into a run likely to crawl or trip a
+    watchdog timeout; gives up after GPU_MAX_WAIT_SECONDS so an unattended
+    run doesn't stall forever if the shared server stays busy."""
     waited = 0
     while True:
         stats = query_gpu_stats()
@@ -271,18 +303,27 @@ def pick_gpu() -> int:
             print(f"[WARN] no GPU stats available; defaulting to GPU {GPU_CANDIDATES[0]}")
             return GPU_CANDIDATES[0]
 
-        under_threshold = {i: s for i, s in stats.items() if s["util"] < GPU_UTIL_THRESHOLD}
+        usable = {
+            i: s for i, s in stats.items()
+            if s["util"] < GPU_UTIL_THRESHOLD and s["mem_free"] >= GPU_MIN_FREE_MEM_MB
+        }
         print(f"[gpu] current state: {stats}")
 
-        if under_threshold:
-            chosen = min(under_threshold, key=lambda i: under_threshold[i]["mem_used"])
-            print(f"[gpu] choosing GPU {chosen} (util={stats[chosen]['util']}%, mem={stats[chosen]['mem_used']}MiB)")
+        if usable:
+            chosen = min(usable, key=lambda i: usable[i]["mem_used"])
+            print(f"[gpu] choosing GPU {chosen} (util={stats[chosen]['util']}%, free={stats[chosen]['mem_free']:.0f}MiB)")
             return chosen
 
         if waited >= GPU_MAX_WAIT_SECONDS:
-            chosen = min(stats, key=lambda i: stats[i]["util"])
+            # least-bad: prefer clearing the memory floor over the util
+            # threshold, since memory pressure was the harder failure to
+            # diagnose after the fact -- an OOM crash is more informative
+            # than a silent crawl.
+            mem_ok = {i: s for i, s in stats.items() if s["mem_free"] >= GPU_MIN_FREE_MEM_MB}
+            pool = mem_ok if mem_ok else stats
+            chosen = min(pool, key=lambda i: pool[i]["util"])
             print(
-                f"[WARN] no GPU under {GPU_UTIL_THRESHOLD}% util after waiting {waited}s -- "
+                f"[WARN] no GPU clears both thresholds after waiting {waited}s -- "
                 f"proceeding anyway with GPU {chosen} (least-bad option: {stats[chosen]})"
             )
             return chosen
@@ -420,16 +461,44 @@ def last_agent_line(log_path: str) -> str:
     return agent_lines[-1] if agent_lines else ""
 
 
+def parse_game_time(agent_line: str):
+    """Extracts the Game time float from a '=== [Agent] ...' line, or None
+    if the line is empty/unparseable. This is the actual progress signal --
+    route 6 proved wallclock elapsed alone can't distinguish a route that's
+    legitimately still working (indecisive lane-change, Game time steadily
+    advancing) from one that's genuinely stuck (Game time frozen)."""
+    m = re.search(r"Game time = ([\d.]+)", agent_line)
+    return float(m.group(1)) if m else None
+
+
+def hit_tick_limit(eval_log_path: str) -> bool:
+    """Checks whether this attempt failed specifically because SimLingo's
+    own internal tick_count > 4000 cap fired (scenario_manager.py,
+    confirmed from source), as opposed to a crash, infra hiccup, or a
+    stall we killed ourselves. A tick-limit hit means the agent/scenario
+    ran its FULL simulated budget and still didn't resolve -- a model or
+    scenario problem, not something a bare retry with nothing changed is
+    likely to fix differently. Detected via the literal error text the
+    framework raises, not guessed."""
+    try:
+        with open(eval_log_path, "r", errors="replace") as f:
+            content = f.read()
+        return "tick_count > 4000" in content or "TickRuntimeError" in content
+    except Exception:
+        return False
+
+
 # ======================================================================
 # Single attempt: run one route once CARLA is already up
 # ======================================================================
 
 
-def run_single_route(route_idx: int, gpu_index: int, attempt: int) -> bool:
+def run_single_route(route_idx: int, gpu_index: int, attempt: int):
+    """Returns (success: bool, eval_log_path: str)."""
     route_file = route_split_file(route_idx)
     if not os.path.exists(route_file):
         print(f"[route {route_idx}] ERROR: split file not found: {route_file}")
-        return False
+        return False, None
 
     result_path = f"{RESULTS_DIR}/bench2drive_{route_idx:02d}_result.json"
     debug_checkpoint_path = f"{RESULTS_DIR}/bench2drive_{route_idx:02d}_live.txt"
@@ -462,6 +531,8 @@ def run_single_route(route_idx: int, gpu_index: int, attempt: int) -> bool:
         )
         _track(proc)
         start = time.time()
+        last_game_time = None
+        last_progress_at = start
         try:
             while True:
                 try:
@@ -469,22 +540,34 @@ def run_single_route(route_idx: int, gpu_index: int, attempt: int) -> bool:
                     break  # process exited
                 except subprocess.TimeoutExpired:
                     pass
-                elapsed = time.time() - start
-                if elapsed >= WALLCLOCK_CAP_SECONDS:
-                    print(f"[route {route_idx}] wall-clock cap ({WALLCLOCK_CAP_SECONDS}s) exceeded -- killing")
+                now = time.time()
+                elapsed = now - start
+
+                heartbeat = last_agent_line(eval_log_path)
+                game_time = parse_game_time(heartbeat)
+                if game_time is not None and game_time != last_game_time:
+                    last_game_time = game_time
+                    last_progress_at = now
+
+                stalled_for = now - last_progress_at
+                if stalled_for >= STALL_TIMEOUT_SECONDS:
+                    print(
+                        f"[route {route_idx}] STALLED -- Game time hasn't advanced in "
+                        f"{stalled_for:.0f}s (last value: {last_game_time}) -- killing"
+                    )
                     try:
                         os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
                     except ProcessLookupError:
                         pass
                     proc.wait(timeout=15)
                     break
-                heartbeat = last_agent_line(eval_log_path)
+
                 suffix = f" | {heartbeat}" if heartbeat else " | (no agent output yet)"
                 print(f"[route {route_idx}] attempt {attempt} still running ({elapsed:.0f}s elapsed){suffix}")
         finally:
             _untrack(proc)
 
-    return result_is_valid(result_path)
+    return result_is_valid(result_path), eval_log_path
 
 
 # ======================================================================
@@ -515,10 +598,13 @@ def process_route(meta: dict, forced_gpu: int = None) -> str:
 
         start = time.time()
         try:
-            success = run_single_route(route_idx, gpu_index, attempt)
+            success, eval_log_path = run_single_route(route_idx, gpu_index, attempt)
         finally:
             teardown_carla(carla_proc, carla_log_f)
         duration = time.time() - start
+
+        tick_limited = (not success) and eval_log_path and hit_tick_limit(eval_log_path)
+        outcome = "success" if success else ("failed_tick_limit" if tick_limited else "failed")
 
         append_manifest(
             {
@@ -526,13 +612,23 @@ def process_route(meta: dict, forced_gpu: int = None) -> str:
                 "attempt": attempt,
                 "gpu_index": gpu_index,
                 "duration_seconds": round(duration, 1),
-                "outcome": "success" if success else "failed",
+                "outcome": outcome,
             }
         )
 
         if success:
             print(f"[route {route_idx}] SUCCESS on attempt {attempt} ({duration:.0f}s)")
             return "success"
+
+        if tick_limited:
+            print(
+                f"[route {route_idx}] hit SimLingo's internal tick_count>4000 cap on attempt {attempt} "
+                f"({duration:.0f}s) -- not retrying, this is a model/scenario problem, not infra. "
+                f"Flagging for manual review."
+            )
+            append_manifest({**meta, "attempt": attempt, "outcome": "needs_manual_review", "reason": "tick_limit"})
+            return "needs_manual_review"
+
         print(f"[route {route_idx}] attempt {attempt} failed ({duration:.0f}s)")
 
     append_manifest({**meta, "attempt": MAX_RETRIES, "outcome": "needs_manual_review"})
@@ -586,7 +682,10 @@ def main():
 
     print(
         f"Starting batch: {len(metadata)} route(s) (of {TOTAL_ROUTES} total), "
-        f"max {MAX_RETRIES} retries each, {WALLCLOCK_CAP_SECONDS}s wall-clock cap per attempt.\n"
+        f"max {MAX_RETRIES} retries each. Killed only on genuine stall "
+        f"({STALL_TIMEOUT_SECONDS}s with zero Game-time progress) -- no fixed "
+        f"duration cap, since SimLingo's own internal tick_count cap already "
+        f"bounds any healthy run regardless of how slow it is.\n"
         f"Manifest: {MANIFEST_PATH}\n"
     )
 
