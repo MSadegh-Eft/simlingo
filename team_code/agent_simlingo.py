@@ -59,7 +59,7 @@ def get_entry_point():
 
 
 DEBUG = True # saves images during evaluation
-HD_VIZ = False
+HD_VIZ = True # chase-cam POV for the saved videos (separate viz sensor; model input camera untouched)
 USE_UKF = True
 
 class LingoAgent(autonomous_agent.AutonomousAgent):

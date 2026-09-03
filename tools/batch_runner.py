@@ -83,10 +83,18 @@ AGENT_PATH = f"{WORK_DIR}/team_code/agent_simlingo.py"
 AGENT_CHECKPOINT = f"{WORK_DIR}/models/simlingo/simlingo/checkpoints/epoch=013.ckpt/pytorch_model.pt"
 
 # VERIFY: pick where the real 220-route output should live.
-OUTPUT_DIR = f"{WORK_DIR}/eval220"
+# eval220v2 = re-run with chase-cam viz (HD_VIZ) + CARLA recorder logs;
+# the original eval220 run stays untouched for comparison.
+OUTPUT_DIR = f"{WORK_DIR}/eval220v2"
 RESULTS_DIR = f"{OUTPUT_DIR}/results"
 VIZ_DIR = f"{OUTPUT_DIR}/viz"
 LOGS_DIR = f"{OUTPUT_DIR}/logs"
+# CARLA recorder logs -- one .log per route per attempt, written by the
+# CARLA server itself via the evaluator's --record flag (leaderboard_
+# evaluator.py already implements start/stop_recorder). These allow
+# re-watching / re-rendering a finished run in CARLA without re-running
+# the agent.
+RECORD_DIR = f"{OUTPUT_DIR}/records"
 MANIFEST_PATH = f"{OUTPUT_DIR}/batch_status.jsonl"
 
 # Confirmed against activate_env.sh's own export -- no longer a guess.
@@ -506,6 +514,11 @@ def run_single_route(route_idx: int, gpu_index: int, attempt: int):
     os.makedirs(save_path, exist_ok=True)
     os.makedirs(RESULTS_DIR, exist_ok=True)
     os.makedirs(LOGS_DIR, exist_ok=True)
+    # Per-attempt subdir: a retried route re-runs the evaluator with the
+    # same config.name, so without this a retry's recorder would collide
+    # with the previous attempt's .log file.
+    record_dir = f"{RECORD_DIR}/attempt{attempt}"
+    os.makedirs(record_dir, exist_ok=True)
 
     eval_cmd = (
         f"source {ACTIVATE_ENV_SCRIPT} && "
@@ -518,7 +531,8 @@ def run_single_route(route_idx: int, gpu_index: int, attempt: int):
         f"--timeout={EVAL_TIMEOUT} --agent={AGENT_PATH} "
         f'--agent-config="{AGENT_CHECKPOINT}" --traffic-manager-seed=1 '
         f"--port={CARLA_PORT} --traffic-manager-port={TRAFFIC_MANAGER_PORT} "
-        f"--debug-checkpoint={debug_checkpoint_path}"
+        f"--debug-checkpoint={debug_checkpoint_path} "
+        f"--record={record_dir}"
     )
 
     eval_log_path = f"{LOGS_DIR}/bench2drive_{route_idx:02d}_eval_attempt{attempt}.log"
@@ -667,7 +681,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    for d in (OUTPUT_DIR, RESULTS_DIR, VIZ_DIR, LOGS_DIR):
+    for d in (OUTPUT_DIR, RESULTS_DIR, VIZ_DIR, LOGS_DIR, RECORD_DIR):
         os.makedirs(d, exist_ok=True)
 
     metadata = load_route_metadata()

@@ -7,8 +7,8 @@
 #   ./build_videos_220.sh 4 42 167     # build videos only for these route indices
 #   PARALLEL_JOBS=12 ./build_videos_220.sh   # override the default parallelism
 
-VIZ_ROOT="/data/ghazaleh/simlingo/eval220/viz"
-OUT_DIR="/data/ghazaleh/simlingo/eval220/videos"
+VIZ_ROOT="/data/ghazaleh/simlingo/eval220v2/viz"
+OUT_DIR="/data/ghazaleh/simlingo/eval220v2/videos"
 # CPU-bound work, no GPU/CARLA involved -- but still a shared 32-core box
 # with other users regularly at ~50% load, so leaving real headroom rather
 # than maxing out every core.
