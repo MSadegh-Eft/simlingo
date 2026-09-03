@@ -18,10 +18,10 @@ re-implementations:
      (Driving Score, Success Rate over all records)
   3. ability_benchmark.py           -> results/merged_ability.json
      (per-ability success: Overtaking / Merging / Emergency_Brake /
-     Give_Way / Traffic_Signs. NOTE: spawns its own CARLA server on
-     --ability-port and needs a free port + GPU; skipped by --skip-ability.
-     The spawned server is killed again afterwards, unlike the official
-     script which orphans it.)
+     Give_Way / Traffic_Signs. NOTE: spawns its own CARLA server on the
+     script's built-in default port 4000 and needs a free port + GPU;
+     skipped by --skip-ability. The spawned server is killed again
+     afterwards, unlike the official script which orphans it.)
   4. efficiency_smoothness_benchmark.py
      -> official Driving Efficiency (from the min_speed_infractions
      messages -- yes, that is genuinely how the official script computes
@@ -175,10 +175,10 @@ def step_flatten(eval_dir: Path, force: bool = False, dry_run: bool = False) -> 
     return ready == TOTAL_ROUTES
 
 
-def step_merge(eval_dir: Path) -> Path:
+def step_merge(eval_dir: Path, force: bool = False) -> Path:
     """Official merge: Driving Score + Success Rate -> results/merged.json."""
     merged = eval_dir / "results" / "merged.json"
-    if merged.exists():
+    if merged.exists() and not force:
         print(f"[merge] skipped, {merged} already exists")
         return merged
     log_path = eval_dir / "merge_route_json.log"
@@ -195,9 +195,16 @@ def step_merge(eval_dir: Path) -> Path:
 
 def step_ability(eval_dir: Path, port: int, force: bool = False) -> Path:
     """Official ability benchmark (Overtaking / Merging / Emergency_Brake /
-    Give_Way / Traffic_Signs). Spawns its OWN CARLA server on `port` --
-    needs a genuinely free port and some GPU; takes a while because it
-    loads several towns for the Traffic_Signs route planning."""
+    Give_Way / Traffic_Signs). Spawns its OWN CARLA server (port 4000, the
+    script's built-in default) -- needs a genuinely free port and some GPU;
+    takes a while because it loads several towns for the Traffic_Signs
+    route planning.
+
+    Deliberately does NOT pass -p/--port: the official script declares it
+    with argparse nargs=1, so passing '-p 4000' makes args.port a LIST
+    (['4000']), which corrupts both the CARLA spawn command string
+    (-carla-rpc-port=['4000']) and carla.Client(host, ['4000']). The flag
+    only works when omitted -- exactly how the official README invokes it."""
     ability_json = eval_dir / "results" / "merged_ability.json"
     merged = eval_dir / "results" / "merged.json"
     if ability_json.exists() and not force:
@@ -207,12 +214,16 @@ def step_ability(eval_dir: Path, port: int, force: bool = False) -> Path:
     print(f"[ability] running ability_benchmark.py with its own CARLA on "
           f"port {port} (log: {log_path}) -- this loads towns and can take minutes")
     result = run_in_env(
+        # No -p: see the docstring -- the official script's nargs=1 turns it
+        # into a list and breaks both the spawn command and carla.Client.
         f"{BENCH2DRIVE_TOOLS}/ability_benchmark.py "
-        f"-f {ROUTES_XML} -r {merged} -p {port}",
+        f"-f {ROUTES_XML} -r {merged}",
         log_path=log_path,
     )
     # The official script never kills the CARLA server it spawns -- don't
-    # orphan it on this shared box. Scoped to the exact port we passed.
+    # orphan it on this shared box. The server always runs on the script's
+    # own default port 4000 (see docstring for why -p is not passed), so
+    # --ability-port only parameterizes this cleanup match.
     subprocess.run(["pkill", "-9", "-f", f"carla-rpc-port={port}"], capture_output=True)
     time.sleep(2)
     if result.returncode != 0 or not ability_json.exists():
@@ -308,7 +319,12 @@ def main():
     parser.add_argument("--skip-ability", action="store_true",
                         help="Skip ability_benchmark.py (it spawns its own CARLA server)")
     parser.add_argument("--ability-port", type=int, default=4000,
-                        help="RPC port for the CARLA server spawned by ability_benchmark.py")
+                        help="Port to pkill-match when cleaning up the CARLA "
+                             "server that ability_benchmark.py spawns on its "
+                             "BUILT-IN default (4000). The script's own -p "
+                             "flag is broken (argparse nargs=1 turns the "
+                             "value into a list), so we never pass it -- "
+                             "this only parameterizes the cleanup match.")
     parser.add_argument("--force", action="store_true",
                         help="Redo steps even if their outputs already exist")
     args = parser.parse_args()
@@ -329,7 +345,7 @@ def main():
         return
 
     print("\n=== Step 2: merge_route_json.py ===")
-    step_merge(eval_dir)
+    step_merge(eval_dir, force=args.force)
 
     ability_json = None
     if not args.skip_ability:
