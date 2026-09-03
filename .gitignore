@@ -10,8 +10,8 @@ eval10_orion_match/
 eval220/
 eval_results/
 pretrained/
-models/simlingo/simlingo/
 smoke_test/viz/
+models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
