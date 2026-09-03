@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-build_matrix.py -- aggregates eval220 results into the 44-scenario-type x
+build_matrix.py -- aggregates eval220v2 results into the 44-scenario-type x
 12-infraction-type analysis matrix, plus driving-score and pipeline stats.
 
-READ-ONLY. Only reads bench2drive220.xml, eval220/results/*.json, and
-eval220/batch_status.jsonl -- never touches CARLA. Deliberately does NOT
+READ-ONLY. Only reads bench2drive220.xml, eval220v2/results/*.json, and
+eval220v2/batch_status.jsonl -- never touches CARLA. Deliberately does NOT
 import batch_runner.py: that module installs signal handlers at import
 time that kill CARLA processes on Ctrl+C, which would be actively
 dangerous to run alongside a still-in-progress batch. Route-metadata
@@ -16,8 +16,8 @@ reports on whatever has a valid result so far, nothing more.
 Usage:
     python3 build_matrix.py
 Outputs:
-    eval220/analysis_matrix.csv   -- one row per scenario type
-    eval220/analysis_summary.txt  -- overall aggregate, marginal infraction
+    eval220v2/analysis_matrix.csv   -- one row per scenario type
+    eval220v2/analysis_summary.txt  -- overall aggregate, marginal infraction
                                       rates, ranked worst scenarios, pipeline stats
 """
 
@@ -35,10 +35,10 @@ from pathlib import Path
 
 WORK_DIR = "/data/ghazaleh/simlingo"
 ROUTES_METADATA_XML = "/data/ghazaleh/Bench2Drive/leaderboard/data/bench2drive220.xml"
-RESULTS_DIR = f"{WORK_DIR}/eval220/results"
-MANIFEST_PATH = f"{WORK_DIR}/eval220/batch_status.jsonl"
-OUTPUT_CSV = f"{WORK_DIR}/eval220/analysis_matrix.csv"
-OUTPUT_SUMMARY = f"{WORK_DIR}/eval220/analysis_summary.txt"
+RESULTS_DIR = f"{WORK_DIR}/eval220v2/results"
+MANIFEST_PATH = f"{WORK_DIR}/eval220v2/batch_status.jsonl"
+OUTPUT_CSV = f"{WORK_DIR}/eval220v2/analysis_matrix.csv"
+OUTPUT_SUMMARY = f"{WORK_DIR}/eval220v2/analysis_summary.txt"
 TOTAL_ROUTES = 220
 Z_95 = 1.959963985  # z-score for 95% confidence
 

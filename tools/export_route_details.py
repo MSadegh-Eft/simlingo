@@ -13,7 +13,7 @@ Read-only, safe to run any time.
 Usage:
     python3 export_route_details.py
 Output:
-    eval220/route_details.csv
+    eval220v2/route_details.csv
 """
 
 import csv
@@ -23,9 +23,9 @@ from pathlib import Path
 
 WORK_DIR = "/data/ghazaleh/simlingo"
 ROUTES_METADATA_XML = "/data/ghazaleh/Bench2Drive/leaderboard/data/bench2drive220.xml"
-RESULTS_DIR = f"{WORK_DIR}/eval220/results"
-MANIFEST_PATH = f"{WORK_DIR}/eval220/batch_status.jsonl"
-OUTPUT_CSV = f"{WORK_DIR}/eval220/route_details.csv"
+RESULTS_DIR = f"{WORK_DIR}/eval220v2/results"
+MANIFEST_PATH = f"{WORK_DIR}/eval220v2/batch_status.jsonl"
+OUTPUT_CSV = f"{WORK_DIR}/eval220v2/route_details.csv"
 TOTAL_ROUTES = 220
 
 INFRACTION_KEYS = [
