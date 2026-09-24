@@ -40,6 +40,7 @@ Usage:
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -88,8 +89,11 @@ def find_metric_info(route_viz_dir: Path, save_name: str):
     base = route_viz_dir / save_name
     if not base.is_dir():
         return None
+    # Deterministic layout (.../debug_viz/*/*/*/metric/) -- a targeted glob
+    # instead of rglob, which would walk the huge images/ subtree and is
+    # painfully slow over network mounts (e.g. the external archive mount).
     candidates = sorted(
-        base.rglob("metric_info.json"),
+        base.glob("debug_viz/*/*/*/metric/metric_info.json"),
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -108,12 +112,54 @@ def metric_file_is_wellformed(path: Path) -> bool:
         return False
 
 
+ABILITY_MIN_FREE_MB = 10000  # the ability CARLA needs roughly 4-8 GB VRAM
+
+
+def gpu_free_mem_mb(gpu_index: int):
+    """Free VRAM (MB) on one GPU index, or None if unavailable."""
+    try:
+        out = subprocess.check_output(
+            ["nvidia-smi", "--query-gpu=index,memory.free", "--format=csv,noheader,nounits"],
+            text=True, timeout=15)
+    except Exception:
+        return None
+    for line in out.strip().splitlines():
+        parts = [p.strip() for p in line.split(",")]
+        if len(parts) == 2 and parts[0].isdigit() and int(parts[0]) == gpu_index:
+            return float(parts[1])
+    return None
+
+
+def pick_freest_gpu():
+    """Index and free MB of the GPU with the most free VRAM (fallback 0)."""
+    try:
+        out = subprocess.check_output(
+            ["nvidia-smi", "--query-gpu=index,memory.free", "--format=csv,noheader,nounits"],
+            text=True, timeout=15)
+    except Exception:
+        return 0, 0.0
+    best_idx, best = 0, -1.0
+    for line in out.strip().splitlines():
+        parts = [p.strip() for p in line.split(",")]
+        if len(parts) == 2 and parts[0].isdigit():
+            free = float(parts[1])
+            if free > best:
+                best_idx, best = int(parts[0]), free
+    return best_idx, max(best, 0.0)
+
+
 def run_in_env(cmd: str, log_path: Path = None):
     """Runs a command inside the simlingo env (activate_env.sh provides
     CARLA_ROOT / PYTHONPATH; the conda activate line is a no-op in
     non-interactive shells, which is why the env's python is invoked by
     absolute path -- same workaround as batch_runner.py)."""
-    full = f"source {ACTIVATE_ENV_SCRIPT} && cd {WORK_DIR} && {SIMLINGO_PYTHON} -u {cmd}"
+    # Cap BLAS/OpenMP threads: under system thread-pressure (pthread_create
+    # EAGAIN after the 2026-09-09 crash) OpenBLAS tries to spawn ~32 threads
+    # on import and fails; 4 is plenty for these single-threaded scripts.
+    full = (f"source {ACTIVATE_ENV_SCRIPT} && cd {WORK_DIR} && "
+            f"export OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 "
+            f"MKL_NUM_THREADS=4 NUMEXPR_NUM_THREADS=4 && "
+            f"{SIMLINGO_PYTHON} -u {cmd}")
     if log_path is None:
         return subprocess.run(["bash", "-c", full])
     with open(log_path, "w") as log_f:
@@ -157,7 +203,9 @@ def step_flatten(eval_dir: Path, force: bool = False, dry_run: bool = False) -> 
         dst = dst_dir / "metric_info.json"
         if force or not dst.exists():
             dst_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+            # copyfile (not copy2): copystat's utime call is not permitted on
+            # the external SMB share and aborts the whole flatten
+            shutil.copyfile(src, dst)
             copied += 1
 
     print(f"[flatten] ready routes: {ready}/{TOTAL_ROUTES}")
@@ -213,10 +261,34 @@ def step_ability(eval_dir: Path, port: int, force: bool = False) -> Path:
     log_path = eval_dir / "ability_benchmark.log"
     print(f"[ability] running ability_benchmark.py with its own CARLA on "
           f"port {port} (log: {log_path}) -- this loads towns and can take minutes")
+    # GPU pinning without touching the official file: the script spawns its
+    # CARLA with no -graphicsadapter flag, so UE4 picks the default adapter
+    # (GPU 0). If that adapter lacks free VRAM, run a temporary patched COPY
+    # pinned to the freest GPU (the original official file stays untouched).
+    default_free = gpu_free_mem_mb(0)
+    script_path = f"{BENCH2DRIVE_TOOLS}/ability_benchmark.py"
+    tmp_patched = None
+    if default_free is not None and default_free < ABILITY_MIN_FREE_MB:
+        freest_idx, freest_mb = pick_freest_gpu()
+        tmp_patched = "/tmp/ability_benchmark_gpu_patched.py"
+        src_text = open(script_path).read()
+        patched = src_text.replace(
+            " -RenderOffScreen -nosound -carla-rpc-port=",
+            f" -RenderOffScreen -nosound -graphicsadapter={freest_idx} -carla-rpc-port=")
+        if patched == src_text:
+            print("[ability] WARNING: could not patch the spawn line -- "
+                  "running the official script unmodified", flush=True)
+        else:
+            with open(tmp_patched, "w") as f:
+                f.write(patched)
+            print(f"[ability] default adapter low on VRAM ({default_free:.0f}MB) -- "
+                  f"running a patched COPY pinned to GPU {freest_idx} ({freest_mb:.0f}MB free)",
+                  flush=True)
+            script_path = tmp_patched
     result = run_in_env(
         # No -p: see the docstring -- the official script's nargs=1 turns it
         # into a list and breaks both the spawn command and carla.Client.
-        f"{BENCH2DRIVE_TOOLS}/ability_benchmark.py "
+        f"{script_path} "
         f"-f {ROUTES_XML} -r {merged}",
         log_path=log_path,
     )
@@ -225,6 +297,11 @@ def step_ability(eval_dir: Path, port: int, force: bool = False) -> Path:
     # own default port 4000 (see docstring for why -p is not passed), so
     # --ability-port only parameterizes this cleanup match.
     subprocess.run(["pkill", "-9", "-f", f"carla-rpc-port={port}"], capture_output=True)
+    if tmp_patched:
+        try:
+            os.remove(tmp_patched)
+        except OSError:
+            pass
     time.sleep(2)
     if result.returncode != 0 or not ability_json.exists():
         print(f"[ability] FAILED (exit {result.returncode}) -- see {log_path}; "
@@ -244,6 +321,8 @@ def step_efficiency_smoothness(eval_dir: Path) -> dict:
     result = subprocess.run(
         ["bash", "-c",
          f"source {ACTIVATE_ENV_SCRIPT} && cd {WORK_DIR} && "
+         f"export OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 "
+         f"MKL_NUM_THREADS=4 NUMEXPR_NUM_THREADS=4 && "
          f"{SIMLINGO_PYTHON} {BENCH2DRIVE_TOOLS}/efficiency_smoothness_benchmark.py "
          f"-f {merged} -m {metric_dir}"],
         capture_output=True, text=True,

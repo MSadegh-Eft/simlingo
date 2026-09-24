@@ -39,6 +39,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -532,6 +533,11 @@ def run_single_route(route_idx: int, gpu_index: int, attempt: int):
         f'--agent-config="{AGENT_CHECKPOINT}" --traffic-manager-seed=1 '
         f"--port={CARLA_PORT} --traffic-manager-port={TRAFFIC_MANAGER_PORT} "
         f"--debug-checkpoint={debug_checkpoint_path} "
+        # Pin the evaluator's own auto-spawned CARLA to the same GPU as
+        # everything else (its --gpu-rank otherwise defaults to 0), and
+        # narrow its crash-cleanup kill pattern to our GPU instead of
+        # killing any -graphicsadapter=0 process on this shared box.
+        f"--gpu-rank={gpu_index} "
         f"--record={record_dir}"
     )
 
@@ -585,6 +591,50 @@ def run_single_route(route_idx: int, gpu_index: int, attempt: int):
 
 
 # ======================================================================
+# Disk-space guard
+#
+# The 2026-09-06 run died when the shared /data volume hit 100% mid-run:
+# agent PNG writes failed ("Failed - Agent crashed" on routes 166/168/169)
+# and then an unhandled OSError at the next route's makedirs killed the
+# whole batch. Now every attempt waits for a minimum free-space budget
+# first, and an exhausted budget stops the batch GRACEFULLY -- already
+# valid results are kept and the remainder resumes on relaunch.
+# ======================================================================
+
+DISK_MIN_FREE_MB = 20000          # never START an attempt below this free space
+DISK_WAIT_POLL_SECONDS = 300      # recheck cadence while waiting for space
+DISK_MAX_WAIT_SECONDS = 2 * 3600  # stop the batch after waiting this long
+
+
+class LowDiskSpace(Exception):
+    pass
+
+
+def ensure_disk_space():
+    """Blocks until WORK_DIR's filesystem has at least DISK_MIN_FREE_MB free.
+    Raises LowDiskSpace once the wait budget is exhausted -- main() turns
+    that into a graceful stop (resume on relaunch), never a mid-route crash."""
+    waited = 0
+    while True:
+        free_mb = shutil.disk_usage(WORK_DIR).free // (1024 * 1024)
+        if free_mb >= DISK_MIN_FREE_MB:
+            return
+        if waited >= DISK_MAX_WAIT_SECONDS:
+            raise LowDiskSpace(
+                f"only {free_mb}MB free on {WORK_DIR} after waiting "
+                f"{waited}s (need {DISK_MIN_FREE_MB}MB)"
+            )
+        print(
+            f"[disk] LOW: {free_mb}MB free (<{DISK_MIN_FREE_MB}MB) -- waiting "
+            f"{DISK_WAIT_POLL_SECONDS}s before rechecking "
+            f"({waited}s/{DISK_MAX_WAIT_SECONDS}s budget)",
+            flush=True,
+        )
+        time.sleep(DISK_WAIT_POLL_SECONDS)
+        waited += DISK_WAIT_POLL_SECONDS
+
+
+# ======================================================================
 # Per-route orchestration: skip-if-done, else retry loop with fresh CARLA
 # ======================================================================
 
@@ -598,6 +648,7 @@ def process_route(meta: dict, forced_gpu: int = None) -> str:
         return "already_complete"
 
     for attempt in range(1, MAX_RETRIES + 1):
+        ensure_disk_space()
         gpu_index = forced_gpu if forced_gpu is not None else pick_gpu()
         print(
             f"[route {route_idx}] attempt {attempt}/{MAX_RETRIES} on GPU {gpu_index} "
@@ -707,7 +758,29 @@ def main():
     flagged_routes = []
 
     for meta in metadata:
-        outcome = process_route(meta, forced_gpu=args.gpu)
+        try:
+            outcome = process_route(meta, forced_gpu=args.gpu)
+        except LowDiskSpace as e:
+            remaining = sum(1 for m in metadata if m["route_idx"] >= meta["route_idx"])
+            print(
+                f"\n[disk] STOPPING the batch gracefully: {e}\n"
+                f"[disk] ~{remaining} route(s) not yet processed -- free up space "
+                f"(or clean failed-attempt viz via tools/cleanup_failed_attempts.py) "
+                f"and relaunch: valid results are kept, the rest resume.",
+                flush=True,
+            )
+            break
+        except Exception as e:
+            # One route's infra failure must never kill the whole batch
+            # (2026-09-06: a single OSError at makedirs took down the run).
+            append_manifest(
+                {**meta, "attempt": -1, "outcome": "needs_manual_review",
+                 "reason": f"exception: {type(e).__name__}: {e}"}
+            )
+            summary["needs_manual_review"] = summary.get("needs_manual_review", 0) + 1
+            flagged_routes.append(meta["route_idx"])
+            print(f"[route {meta['route_idx']}] EXCEPTION ({type(e).__name__}: {e}) -> needs_manual_review\n")
+            continue
         summary[outcome] = summary.get(outcome, 0) + 1
         if outcome == "needs_manual_review":
             flagged_routes.append(meta["route_idx"])
