@@ -1,263 +1,146 @@
-# [CVPR'25, Highlight] SimLingo: Vision-Only Closed-Loop Autonomous Driving with Language-Action Alignment
+# SimLingo on Bench2Drive — Thesis Evaluation Fork
 
-<p align="center">
-  <h3 align="center">
-    <a href="https://arxiv.org/abs/2503.09594"> Paper</a> | <a href="https://www.youtube.com/watch?v=Mpbnz2AKaNA&t=15s">Video</a> | <a href="https://www.katrinrenz.de/simlingo/">Website</a> | <a href="https://huggingface.co/datasets/RenzKa/simlingo">Dataset</a> | <a href="https://huggingface.co/RenzKa/simlingo">Model</a> 
-  </h3>
-</p>
+Personal fork of [SimLingo](https://github.com/RenzKa/simlingo) (CVPR'25 Highlight) used for my thesis work:
+**evaluating the released SimLingo model on all 220 Bench2Drive routes, twice, with full instrumentation —
+and analysing where the model, the sensors, and the benchmark itself each contribute to the failures.**
 
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/carllava-vision-language-models-for-camera/carla-leaderboard-2-0-on-carla)](https://paperswithcode.com/sota/carla-leaderboard-2-0-on-carla?p=carllava-vision-language-models-for-camera)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/carllava-vision-language-models-for-camera/bench2drive-on-bench2drive)](https://paperswithcode.com/sota/bench2drive-on-bench2drive?p=carllava-vision-language-models-for-camera)
+> **Author:** Mohammad Sadegh Eftekhar
+> **Fork:** [MSadegh-Eft/simlingo](https://github.com/MSadegh-Eft/simlingo) ← upstream [RenzKa/simlingo](https://github.com/RenzKa/simlingo)
+> **Period:** August – September 2026
+> The original upstream README is preserved at [`README_original.md`](README_original.md).
 
-<p align="center" style="font-size:17px;">
-SimLingo is a Vision-Language-Action (VLA) model that achieves state-of-the-art driving performance on the CARLA Leaderboard and Bench2Drive, while simultaniously including language capabilities like VQA, commentary, and instruction following.
-</p>
+---
 
-<p align="center">
-  <img src="assets/simlingo_teaser.png">
-</p>
+## 1. What this fork does
 
+Upstream SimLingo ships the model, training pipeline and a CARLA Leaderboard evaluation stack.
+This fork adds a **complete Bench2Drive evaluation laboratory** around the released checkpoint:
 
+- an unattended **220-route batch evaluation runner** with automatic retries, crash recovery and live monitoring
+- a **resource monitor** (GPU/CPU/RAM sampling) running alongside every evaluation
+- an **official-metrics pipeline** that reproduces Bench2Drive's own post-processing (ability benchmark, efficiency/smoothness)
+- **chase-cam video generation** for every route, plus per-route detail exports
+- **two full 220-route evaluations** of the identical checkpoint (independent runs), and a
+- **220-route manual video review** with a written analysis report (per-route + thematic + code-level root causes)
 
-This repository is based on [Carla Garage](https://github.com/autonomousvision/carla_garage) and includes the PDM-lite expert, data collection code, language label generation, dreaming data generation, training of the base and final model, and evaluation of closed-loop driving and the language capabilities.
+Main deliverable: [`simlingo_bench2drive_report.docx`](simlingo_bench2drive_report.docx) —
+the full report (12 sections: results, ability breakdown, per-scenario and per-route tables, manual review of
+all 220 routes, code-verified root-cause map, ranked improvement plan, threats to validity).
 
-## 6-minute summary <a name="summary"></a> 
+## 2. Server configuration
 
-[<img src="assets/thumbnail.png" width="100%">](https://youtu.be/Mpbnz2AKaNA?si=qdQfhGIwnCbtD2DQ)
+All work ran on a single Linux server:
 
+| Component | Specification |
+|---|---|
+| GPU | 3× NVIDIA RTX 6000 Ada Generation (48 GB each) |
+| GPU driver / CUDA | 550.135 / CUDA 12.4 |
+| CPU | 2× Intel Xeon Platinum 8480+ (224 threads) |
+| System RAM | 64 GB |
+| OS | Ubuntu 24.04 LTS |
+| Storage | 984 GB NVMe mounted at `/data` (repo, CARLA, results and videos all live here) |
 
-## News <a name="news"></a>
-- **`[2025/06/25]`** We released the simlingo model checkpoints and inference code.
-- **`[2025/05/26]`** We released the full dataset on huggingface.
-- **`[2025/05/08]`** Initial code release.
-- **`[2025/04/28]`** SimLingo is accepted to CVPR as a highlight paper.
+## 3. Software stack
 
+| Software | Version | Used for |
+|---|---|---|
+| CARLA | **0.9.15** (`/data/ghazaleh/carla`) | simulator |
+| Bench2Drive leaderboard | bundled in this repo (fork of CARLA Leaderboard 2.0) | evaluation harness |
+| scenario_runner | bundled (Bench2Drive variant) | scenario logic |
+| Python (env `simlingo`) | 3.8.18 | agent + model inference |
+| Python (env `b2d`) | 3.8.20 | evaluation leaderboard |
+| PyTorch | 2.2.0 (+ torchvision 0.17.0) | model |
+| transformers | 4.46.3 | InternVL2 VLM backbone |
+| flash-attn | 2.7.0.post2 | attention kernels |
+| pytorch-lightning | 2.4.0 (+ deepspeed 0.16.2, accelerate 1.0.1) | training/inference scaffolding |
+| carla (Python API) | 0.9.15 | agent–simulator bridge |
+| numpy / opencv / pillow | 1.23.0 / 4.2.0.34 / 10.2.0 | data handling |
 
-## Contents
-1. [Setup](#setup)
-2. [Repository structure](#repository-structure)
-3. [Dataset download](#dataset-download)
-4. [Data Generation](#data-generation)
-    - [Driving Data](#driving-data)
-    - [Language Data](#language-data)
-    - [Dreamer Data](#dreamer-data)
-5. [Training](#training)
-6. [Evaluation](#evaluation)
-    - [Closed-loop driving/ Bench2Drive](#bench2drive)
-    - [Language eval](#language-eval)
-7. [Citations](#citations)
-   
-   
-## Setup
+Model evaluated: the **released SimLingo checkpoint** (InternVL2-1B backbone), unmodified —
+the thesis evaluates the public reproduction, not a re-trained model.
 
-Clone the repository, setup CARLA 0.9.15, and build the conda environment:
+## 4. Key files I wrote
+
+Everything below is new in this fork (upstream files are only touched where noted):
+
+| File | Lines | What it does |
+|---|---|---|
+| `tools/batch_runner.py` | 796 | The core runner: launches CARLA + leaderboard per route, tracks state in `batch_status.jsonl`, auto-retries failed routes, resumes interrupted batches, manages attempts and tick limits |
+| `tools/build_matrix.py` | 330 | Builds the per-scenario/per-route result matrices and flip analysis between runs |
+| `tools/run_official_metrics.py` | 445 | Official-metrics pipeline: merges route JSONs, runs Bench2Drive's `ability_benchmark.py`, efficiency & smoothness benchmarks; includes a fix for the official tool's broken `-p` flag |
+| `tools/monitor_resources.py` | 352 | Samples GPU/CPU/RAM during evaluations → `resource_samples.csv` + peak summaries |
+| `tools/export_route_details.py` | 183 | Flattens raw result JSONs + manifest into `route_details.csv` (one row per route, official success flag, all infraction counts, durations) |
+| `start_eval_simlingo.py` | 304 | Single-route evaluation entry point (upstream file, adapted for batch use) |
+| `tools/build_videos_220.sh` | 72 | Generates chase-cam videos for all routes from the recorded runs |
+| `tools/build_videos_all_attempts.sh` | 51 | Variant covering all recording attempts (untracked helper) |
+| `build_videos.sh` | 34 | Upstream-style video builder used during smoke tests |
+| `tools/cleanup_failed_attempts.py`, `tools/filter_broken_files.py`, `tools/infraction_gifs.py` | — | Housekeeping helpers for the results tree |
+| `activate_env.sh` | — | One-command environment activation (conda envs + CARLA + leaderboard paths) |
+| `team_code/agent_simlingo.py` | modified | Upstream agent; enabled debug-viz saving, guarded encoder cleanup, chase-cam viz sensor for the recorded videos |
+
+Evaluation outputs (not in git, on `/data`): `eval220/` (run 1), `eval220v2/` (run 2, with videos + recorder logs) —
+raw per-route result JSONs, merged results, official metrics, ability breakdowns, resource samples, videos.
+
+## 5. Timeline of work
+
+| Date (2026) | Milestone |
+|---|---|
+| Aug 16 | Smoke test of the upstream eval stack on single routes; first results + example video (`f594ed5`); agent viz fixes (`d19ee77`) |
+| Aug 16 | **220-route batch runner** written (`7ef1c81`) — evaluation of the full benchmark becomes unattended |
+| Aug 16–22 | **Run 1** (`eval220/`): all 220 routes evaluated |
+| Aug 22 | Monitoring + review tooling (`a8c0e6d`): resource sampler, result matrices, video pipeline hardening |
+| Sep 3 | Per-route details exporter (`7289693`); rerun prep with chase-cam viz + CARLA recorder logs + official metrics (`51e0d2d`); analysis tools repointed (`bcc9a7f`) |
+| Sep 3 | **Run 2** (`eval220v2/`): full rerun of all 220 routes with instrumentation |
+| Sep 3 | Official ability/efficiency metrics reproduced with a fix to the official tool (`69f4676`) |
+| Sep 3–23 | Manual video review of all 220 routes (both runs), root-cause code analysis, and the written report |
+
+## 6. Headline results
+
+Identical checkpoint, identical 220 routes, two independent runs:
+
+| Metric | Run 1 | Run 2 |
+|---|---|---|
+| Driving Score | 88.29 | 88.76 |
+| Official success rate | 69.1% (152/220) | 71.4% (157/220) |
+| Route completion (mean) | 99.5% | 99.5% |
+
+- The **+2.3 pp run-to-run swing is the measured noise floor** — single-run ablation claims smaller than ~5 routes are not evidence.
+- Weakest ability categories (official breakdown): **Merging (~52%)** and **Give Way (50%)**, flat across both runs; strongest: **Emergency Brake (~88%)**.
+- Under the strict official success definition the merge-family scenario types (HighwayExit, EnterActorFlow, YieldToEmergencyVehicle) are 0/5 clean **in both runs**, but 3–5/5 under destination-reached: the model always finishes these routes, never legally.
+- Key root causes (all code-verified in the report): single front-facing camera with single-frame input (no rear perception, no temporal memory); chain-of-thought text causally conditions the waypoints; benchmark properties — Min Speed logged-but-unscored, zero-penalty outside-route-lanes, no collision fault attribution (0.1 m/s EPSILON filter), multi-mechanism actor de-spawns.
+
+## 7. Reproducing
+
 ```Shell
-git clone git@github.com:RenzKa/simlingo.git
-cd simlingo
-chmod +x setup_carla.sh
-./setup_carla.sh
+conda activate simlingo  # or: source activate_env.sh (sets CARLA_ROOT, WORK_DIR, leaderboard paths)
 
-# Create base environment
-conda env create -f environment.yaml
-conda activate simlingo
+# Full 220-route batch evaluation (unattended, resumable)
+python tools/batch_runner.py
 
-# Install PyTorch separately to ensure correct CUDA version
-pip install torch==2.2.0
+# Official metrics (ability benchmark, efficiency, smoothness) from raw results
+python tools/run_official_metrics.py
 
-# Install flash-attn separately
-pip install flash-attn==2.7.0.post2
+# Per-route flat table for analysis
+python tools/export_route_details.py
+
+# Chase-cam videos for all routes
+bash tools/build_videos_220.sh
 ```
 
-Before running the code, you will need to add the following paths to PYTHONPATH on your system:
-```Shell
-export CARLA_ROOT=/path/to/CARLA/root
-export WORK_DIR=/path/to/simlingo
-export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
-export SCENARIO_RUNNER_ROOT=${WORK_DIR}/scenario_runner
-export LEADERBOARD_ROOT=${WORK_DIR}/leaderboard
-export PYTHONPATH="${CARLA_ROOT}/PythonAPI/carla/":"${SCENARIO_RUNNER_ROOT}":"${LEADERBOARD_ROOT}":${PYTHONPATH}
-```
+Results land in the run directory (e.g. `eval220v2/`): `results/*.json`, `route_details.csv`,
+`official_metrics_summary.txt`, `resource_samples.csv`, `videos/`, `viz/`.
 
+## 8. Credits
 
+- **SimLingo** — RenzKa/simlingo (CVPR'25 Highlight): model, training pipeline, agent; see [`README_original.md`](README_original.md) and its citations.
+- **Bench2Drive** — Thinklab-SJTU/Bench2Drive: benchmark, leaderboard, scenario suite (bundled under `Bench2Drive/`).
+- **CARLA** — 0.9.15 simulator.
+- Everything in Section 4 (runner, monitors, metrics pipeline, exports, reports) was written for this thesis fork.
+- Licenses from the upstream projects apply to their respective code.
 
-## Repository structure
-The main structure of this repository is taken from [Carla Garage](https://github.com/autonomousvision/carla_garage). Please check it out for more detailed information.
+## 9. Notes
 
-**CARLA**: We have the `leaderboard_autopilot` and `scenario_runner_autopilot` folders for running data collection. The `leaderboard` and `scenario_runner` folder are currently mostly unused (they just contain the route files for evaluation) but can be used to run evaluation on the CARLA eval routes or longest6_v2 or other benchmarks (see [Carla Garage](https://github.com/autonomousvision/carla_garage)). The folder `Bench2Drive` (with its own leaderboard and scenario_runner folders) is used to run closed-loop eval on the Bench2Drive Benchmark. The `team_code` folder is used for all files to run closed-loop agents in carla (for the expert, simlingo and simlingo_base).
-
-**Training**: `simlingo_base_training` and `simlingo_training` contain all files to run training. `simlingo_training` also contains the files to start the language evaluation.
-
-**Dataset**: Our dataset is stored in a folder called `database`.
-
-
-
-## Dataset download
-You can find our dataset here: https://huggingface.co/datasets/RenzKa/simlingo
-The uploaded data contains the driving dataset, VQA, Commentary, and Dreamer labels.
-### Download the whole dataset using git with Git LFS
-
-```bash
-# Clone the repository
-git clone https://huggingface.co/datasets/RenzKa/simlingo
-
-# Navigate to the directory
-cd simlingo
-
-# Pull the LFS files
-git lfs pull
-```
-
-### Download a single file with wget
-
-```bash
-# Download individual files (replace with actual file URLs from Hugging Face)
-wget https://huggingface.co/datasets/RenzKa/simlingo/resolve/main/[filename].tar.gz
-```
-
-### Extract to a single directory - please specify the location where you want to store the dataset
-```bash
-# Create output directory
-mkdir -p database/simlingo
-
-# Extract all archives to the same directory
-for file in *.tar.gz; do
-    echo "Extracting $file to database/simlingo/..."
-    tar -xzf "$file" -C database/simlingo/
-done
-```
-
-
-## Dataset generation
-If you download our dataset from Huggingface, you don't need to follow any of the steps from this section.
-If you only want to perfrom closed-loop driving evaluation, there is no need to download our dataset.
-
-### Driving Data
-
-This repository uses the open-source expert PDM-Lite from the paper [DriveLM](https://arxiv.org/abs/2312.14150) to generate the driving dataset. Most of the code for the data collection is taken from [Carla Garage](https://github.com/autonomousvision/carla_garage). However, we changed some hyperparameter and used the data_agent from DriveLM which saves the required auxiliary information during data collection which is needed to generate the VQA and commentary data.
-
-**Generate driving data:** To re-generate the data, we provide a script for a SLURM cluster, which parallelizes data collection across many GPUs (2080ti in our case). First, adjust the paths etc. in lines 213-230 of [collect_dataset_slurm.py](collect_dataset_slurm.py). You can specify the SLURM partition in [partition.txt](partition.txt) and change it during runtime. [max_num_jobs.txt](max_num_jobs.txt) specifies how many parallel SLURM jobs are submitted. This can also be changed during runtime. The data collection is started via `sbatch 0_run_collect_dataset_slurm.sh`, which calls `collect_dataset_slurm.py`. 
-Increase the number in [max_num_jobs.txt](max_num_jobs.txt) once your setup works. 
-
-**Dataset cleaning:** After the dataset is collected you can use `dataset_generation/delete_failed_runs.py` and `dataset_generation/delete_infraction_routes.py` to delete routes where the expert failed or carla crashed and the routes had to be restarted.
-
-**Route files:** The routes for data collection are stored in [data/simlingo](data/simlingo/). **Note:** These are different route files as used in the Carla Garage. To generate our route files, you can use the following script that generates our modified route files from the original Carla route files: `bash dataset_generation/split_route_files.sh`
-This splits the long training and validation route files provided by Carla into short routes with max 1 or 3 scenarios and balances and upsamples the scenarios.
-
-PDM-Lite uses a modified version of the CARLA leaderboard that exposes additional information about the scenarios and makes data collection easier. They can be found in the [leaderboard_autopilot](leaderboard_autopilot) and [scenario_runner_autopilot](scenario_runner_autopilot) folders.
-
-The dataset provided in this repository is not perfect. At some point while improving the model, you will likely need to collect an improved version.
-
-### Data buckets
-Our bucket file is included in the released dataset. Check out our Huggingface repo.
-If you want to generate your own buckets you can use the script `dataset_generation/data_buckets/carla_get_buckets.py`.
-
-### Language Data
-**VQA (DriveLM):** We use the script (with minor modifications) from [DriveLM](https://github.com/OpenDriveLab/DriveLM/tree/DriveLM-CARLA) to generate VQA labels. You can run `dataset_generation/language_labels/drivelm/carla_vqa_generator_main.py` to generate the VQA labels for your dataset. We used ChatGPT to augment the questions and answers. We provide the augmented templates, which we load during training in the folder [data/augmented_templates/drivelm_train_augmented_v2](data/augmented_templates/drivelm_train_augmented_v2). An example script to generate those augmented sentences can be found here: [dataset_generation/get_augmentations/gpt_augment_vqa.py](dataset_generation/get_augmentations/gpt_augment_vqa.py). **Note:** To be able to generate the VQA labels we save many auxiliary information of the simulator state during data collection. If you use a different dataset, it is likely that this labelling script does not work.
-
-**Commentary:** In this work we provide a new script to generate commentary labels. To generate commentary labels for your dataset, run `dataset_generation/language_labels/commentary/carla_commentary_generator_main.py`. We used ChatGPT to augment the questions and answers. We provide the augmented templates, which we load during training in the folder [data/augmented_templates/commentary_augmented.json](data/augmented_templates/commentary_augmented.json). Unfortunately, based on how the project evolved the augmentations were first done manually for subsentences and later merged. If helpful, we provide the subsentence level augmentationes [here](data/augmented_templates/commentary_subsentence.json) and the script to merge those to the final ones [here](dataset_generation/get_augmentations/commentary_merge_augmented.py). **Note:** To be able to generate the commentary labels, we save auxiliary information of the simulator state during data collection. If you use a different dataset, it is likely that this labelling script does not work.
-
-_File structure:_
-``` bash
-"image": # Path to RGB image
-"commentary": # Commentary string (not augmented)
-"commentary_template": # Commentary with placeholders for changing parts (e.g., object description, location). This is used to retrieve the augmentations.
-"cause_object_visible_in_image": # Whether the object that causes the expert actions is visible in the front view image. Could be used to filter samples where the commentary describes an action based on an object not visible.
-"cause_object": # Dictionary with attributes of the object causing the expert action.
-"cause_object_string": # Language description of the cause object (e.g., dark green car that is to the front)
-"scenario_name": # Name of the active CARLA scenario
-"placeholder": # Dictionary to be able to replace the placeholders in commentary_template.
-```
-
-### Dreamer Data
-To improve the alignment of language and actions, we propose _Action Dreaming_ for which we provide a dataset with multiple different future trajectories given a language instruction. The language instructions cover a wide range of modes (e.g., speed changes, lane changes, object-centric navigation, crashes) with a label indicating whether the execution is allowed and safe or not. 
-To generate the labels, run `dataset_generation/dreamer_data/dreamer_generator.py`.
-
-_File structure:_
-``` bash
-category: # e.g. "target_speed", "stop", "faster", "crash", ...
-      "waypoints": # Dreaming waypoints
-      "route": # Dreaming path
-      "rgb_path": # Path to RGB image in dataset
-      "allowed": # Flag if execution is allowed.
-      "mode": # category
-      "info": # more information, e.g., about current, target, and final speed
-      "route_reasoning": # Language description about the route.
-      "dreamer_instruction": # Language instruction.
-      "instructions_templates": # Instruction with placeholders for changing parts (e.g., object description, location). This is used to retrieve the augmentations.
-      "templates_placeholders": # Dictionary to be able to replace the placeholders in commentary_template.
-      "dreamer_answer_safety": # Answer when safety mode is activated.
-      "safe_to_execute": # Flag if the instruction is safe to execute.
-```
-
-## Training
-We provide code for the smaller model SimLingo-Base (previously CarLLaVA - without language capabilities) in the folder `simlingo_base_training` and for the full model SimLingo in `simlingo_training`. For the config managment we use hydra. The config parameters are defined in the `config.py` file and can be adjusted in the `.yaml` files inside the `config` folder. **Note:** You should double check if the paths to the dataset is correct.
-
-We provide a SLURM script to start training: [train_simlingo_seed1.sh](train_simlingo_seed1.sh). This can be easily converted to a bash script to locally start the training. The entry file for training is [simlingo_training/train.py](simlingo_training/train.py).
-
-With the default config, the training logs to Wandb. Login is required. We also include a visualization callback that plots ground truth and predicted waypoints during training.
-
-
-## Evaluation
-
-The model file can be downloaded from huggingface: https://huggingface.co/RenzKa/simlingo.
-If you only want to perfrom closed-loop driving evaluation, there is no need to download our dataset.
-
-
-### Bench2Drive
-Bench2Drive is a CARLA benchmark proposed by the paper [Bench2Drive: Towards Multi-Ability Benchmarking of Closed-Loop End-To-End Autonomous Driving](https://arxiv.org/abs/2406.03877). It consists of 220 very short (~150m) routes split across all towns with 1 safety critical scenario in each route.
-Since it uses all towns for training, the methods have seen the test towns during training, so it can be considered a 'training' benchmark (reminiscent of level 4 driving).
-The benchmark also comes with a training dataset generated by the [Think2Drive](https://arxiv.org/abs/2402.16720) expert, but we use the open-source expert [PDM-Lite](https://arxiv.org/abs/2312.14150) that achieves better resuslts and can be adapted to collect the necessary labels to produce VQA, Commentary and Dreamer data.
-The benchmark and additional instructions can be found in the [Bench2Drive](Bench2Drive) folder.
-
-**Start eval:** Evaluation on a SLURM cluster can be run with [start_eval_simlingo.py](start_eval_simlingo.py). The config dictionary needs to be adjusted with the correct names and paths. Most things that need to be changed are marked with TODO tags in [start_eval_simlingo.py](start_eval_simlingo.py). 
-
-**Get results:** The script [Bench2Drive/tools/merge_route_json.py](Bench2Drive/tools/merge_route_json.py) can be used to obtain the final metrics after the evaluation is done. Make sure that all 220 routes are evaluated.
-
-The Bench2Drive folder is based on version 0.0.3 of the [Bench2Drive repository](https://github.com/Thinklab-SJTU/Bench2Drive). Please cite the [Bench2Drive paper](https://arxiv.org/abs/2406.03877) when using the benchmark.
-
-### Language eval
-NOTE: Files might get cleaned at some point in the future (maybe not, depending on my time). Since the dataset and model are a reproduction and not the original ones from the paper, numbers deviate slightly. However, conclusions drawn in the paper still hold. We will update the numbers shortly.
-
-Entry point for the language evaluation is [simlingo_training/eval.py](simlingo_training/eval.py). Please change the variable `eval_mode` to `QA`, `commentary` or `Dreaming`.
-Afterwards, to obtain the metrics you can run [simlingo_training/eval_metrics.py](simlingo_training/eval_metrics.py). For this you first need to specify an OpenAI key here: [simlingo_training/utils/gpt_eval.py](simlingo_training/utils/gpt_eval.py)
-
-
-## Citations
-If you find this repository useful, please consider giving us a star &#127775;.
-Please cite the following papers for the respective components of the repo:
-
-SimLingo:
-```BibTeX
-@InProceedings{Renz2025cvpr,
-  title={SimLingo: Vision-Only Closed-Loop Autonomous Driving with Language-Action Alignment},
-  author={Renz, Katrin and Chen, Long and Arani, Elahe and Sinavski, Oleg},
-  booktitle={Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year={2025}
-}
-```
-
-PDM-Lite expert:
-```BibTeX
-@inproceedings{Sima2024ECCV,
-  title={DriveLM: Driving with Graph Visual Question Answering},
-  author={Chonghao Sima and Katrin Renz and Kashyap Chitta and Li Chen and Hanxue Zhang and Chengen Xie and Jens Beißwenger and Ping Luo and Andreas Geiger and Hongyang Li},
-  booktitle={Proc. of the European Conf. on Computer Vision (ECCV)},
-  year={2024}
-}
-```
-
-Bench2Drive benchmark:
-
-```BibTeX
-@inproceedings{Jia2024NeurIPS,
-  title={Bench2Drive: Towards Multi-Ability Benchmarking of Closed-Loop End-To-End Autonomous Driving},
-  author={Xiaosong Jia and Zhenjie Yang and Qifeng Li and Zhiyuan Zhang and Junchi Yan},
-  booktitle={NeurIPS 2024 Datasets and Benchmarks Track},
-  year={2024}
-}
-```
-
-## Other Resources
-- [tuPlan garage](https://github.com/autonomousvision/tuplan_garage) | [CARLA garage](https://github.com/autonomousvision/carla_garage) | [Survey on E2EAD](https://github.com/OpenDriveLab/End-to-end-Autonomous-Driving)
-- [DriveLM](https://github.com/OpenDriveLab/DriveLM/tree/main) | [PlanT](https://github.com/autonomousvision/plant) | [KING](https://github.com/autonomousvision/king) | [TransFuser](https://github.com/autonomousvision/transfuser) | [NEAT](https://github.com/autonomousvision/neat)
+- The original upstream README is kept unchanged at [`README_original.md`](README_original.md).
+- The Claude conversation log documenting the earlier stages of this work is being added as
+  `claude_export/` (pending download; the export links require a browser session).
 
