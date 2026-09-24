@@ -175,3 +175,15 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .DS_Store
+
+# ---- thesis fork: local artifacts (not for the public repo) ----
+# reports (contain identifying details; kept local on purpose)
+*.docx
+*.pdf
+# stray shell output
+nohup.out
+*.out
+# claude chat export manifest / archives (single-use URLs)
+claude_export.json
+claude_export/
+

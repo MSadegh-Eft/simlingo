@@ -23,9 +23,10 @@ This fork adds a **complete Bench2Drive evaluation laboratory** around the relea
 - **two full 220-route evaluations** of the identical checkpoint (independent runs), and a
 - **220-route manual video review** with a written analysis report (per-route + thematic + code-level root causes)
 
-Main deliverable: [`simlingo_bench2drive_report.docx`](simlingo_bench2drive_report.docx) —
+Main deliverable: **`simlingo_bench2drive_report.docx`** —
 the full report (12 sections: results, ability breakdown, per-scenario and per-route tables, manual review of
 all 220 routes, code-verified root-cause map, ranked improvement plan, threats to validity).
+The report itself is kept **outside the public repository** (see Section 9); this README is its companion summary.
 
 ## 2. Server configuration
 
@@ -141,6 +142,9 @@ Results land in the run directory (e.g. `eval220v2/`): `results/*.json`, `route_
 ## 9. Notes
 
 - The original upstream README is kept unchanged at [`README_original.md`](README_original.md).
-- The Claude conversation log documenting the earlier stages of this work is being added as
-  `claude_export/` (pending download; the export links require a browser session).
+- The full evaluation report (`simlingo_bench2drive_report.docx` / `.pdf`) is intentionally **not** part of
+  this public repository — it contains server details and per-route data tied to the lab environment;
+  it lives alongside the repo checkout locally. This README is written to stand in for it.
+- The Claude conversation log documenting the earlier stages of this work may be added later
+  (`claude_export/`); its download manifest is gitignored either way.
 
