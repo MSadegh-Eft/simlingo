@@ -1,0 +1,596 @@
+{
+  "benchmark_started": false,
+  "branch": "feat/simlingo-lidar",
+  "joint_optimizer_step": {
+    "finite_losses": {
+      "components": {
+        "distance": 1.4753544330596924,
+        "language": 0.0,
+        "presence": 0.70196533203125,
+        "route": 0.012983298301696778,
+        "speed": 1.298433494567871
+      },
+      "counts": {
+        "distance": 2,
+        "language": 0,
+        "presence": 4,
+        "route": 20,
+        "speed": 10
+      },
+      "gradient_norm": 235.75111389160156,
+      "loss": 1.7468807458877564
+    },
+    "fp32_adam_state": true,
+    "frozen_weights_unchanged": true,
+    "groups_changed": {
+      "connector": true,
+      "driving": true,
+      "lidar": true,
+      "lora": true,
+      "navigation": true,
+      "rgb": true
+    },
+    "limits": "One driving presentation; not the Stage 3 full-mixture memory profile",
+    "manifest_sha256": "065e9c8128d08307b9b5c1ae89092e6d229e65759c005ad8e50b3c595c6602be",
+    "passed": true,
+    "peak_allocated_bytes": 13138031104,
+    "peak_reserved_bytes": 13585350656,
+    "presentations": 1,
+    "updates": 1
+  },
+  "long_training_started": false,
+  "next": "Review Stage 2, then profile the complete GPU-2 training/validation/checkpoint pipeline in Stage 3 before agreeing the training budget",
+  "original_checkpoint_sha256": "ec8943723d266ee9f5f56f45d153a163b22616960bfccb741965ea5daa700d28",
+  "physical_gpu_uuid": "GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d",
+  "pilot": {
+    "benchmark_screen": {
+      "excluded_groups": [
+        "Town04:Town04_Scenario7_51"
+      ],
+      "limits": "Physical containment screen; not proof of independent scenario design or of no prior released-checkpoint exposure",
+      "matches": {
+        "data/simlingo/lb1_split/routes_training/SignalizedJunctionLeftTurn/Town04_Rep0_Town04_Scenario7_51_route0_01_11_20_12_17": [
+          "28111"
+        ]
+      },
+      "rule": "Exclude the whole source group if any >=30m recorded trajectory is >=95% within 3m (3D) of a benchmark polyline",
+      "xml_sha256": "ffff24b3a2b8584632730fb42de7cb6036af780c3952cfef08ee8cf96a712f88"
+    },
+    "bucket_counts": {
+      "commentary": {
+        "acceleration_negative_1": 6326,
+        "acceleration_negative_5": 5524,
+        "acceleration_positive_1": 8053,
+        "acceleration_positive_5": 6966,
+        "all": 57422,
+        "changed_route": 1438,
+        "lateral_control_1_2": 10877,
+        "lateral_control_higher_5": 6047,
+        "leading_object_traffic.stop": 4838,
+        "leading_object_traffic.traffic_light": 6270,
+        "leading_object_vehicle": 30749,
+        "leading_object_walker": 290,
+        "parkinglane": 0,
+        "start_from_stop": 1385,
+        "vehicle_front": 1171,
+        "vehicle_side": 923
+      },
+      "driving": {
+        "acceleration_negative_1": 6799,
+        "acceleration_negative_5": 5868,
+        "acceleration_positive_1": 8451,
+        "acceleration_positive_5": 7482,
+        "all": 61962,
+        "changed_route": 1439,
+        "lateral_control_1_2": 11386,
+        "lateral_control_higher_5": 6674,
+        "leading_object_traffic.stop": 4838,
+        "leading_object_traffic.traffic_light": 6270,
+        "leading_object_vehicle": 33681,
+        "leading_object_walker": 353,
+        "parkinglane": 0,
+        "start_from_stop": 1542,
+        "vehicle_front": 1198,
+        "vehicle_side": 3645
+      },
+      "qa": {
+        "acceleration_negative_1": 6798,
+        "acceleration_negative_5": 5862,
+        "acceleration_positive_1": 8448,
+        "acceleration_positive_5": 7481,
+        "all": 61949,
+        "changed_route": 1439,
+        "lateral_control_1_2": 11386,
+        "lateral_control_higher_5": 6661,
+        "leading_object_traffic.stop": 4838,
+        "leading_object_traffic.traffic_light": 6270,
+        "leading_object_vehicle": 33681,
+        "leading_object_walker": 353,
+        "parkinglane": 0,
+        "start_from_stop": 1542,
+        "vehicle_front": 1198,
+        "vehicle_side": 3645
+      }
+    },
+    "geometry": {
+      "train": {
+        "distance_valid_per_sector": [
+          40034,
+          15354,
+          40796,
+          22665
+        ],
+        "presence_valid_per_sector": [
+          61027,
+          60955,
+          61258,
+          59942
+        ]
+      },
+      "val": {
+        "distance_valid_per_sector": [
+          4209,
+          1484,
+          4446,
+          2209
+        ],
+        "presence_valid_per_sector": [
+          6673,
+          6624,
+          6715,
+          6664
+        ]
+      }
+    },
+    "groups": {
+      "train": 731,
+      "val": 43
+    },
+    "integrity": "Every eligible RGB decoded; LAZ voxelized; boxes, current/navigation and complete future measurements validated",
+    "joint_cycle_replay": 192,
+    "joint_cycle_tasks": {
+      "commentary": 128,
+      "dreamer": 384,
+      "driving": 128,
+      "geometry_qa": 96,
+      "qa": 128,
+      "rear_driving": 96
+    },
+    "lidar_stats": {
+      "furthest_point_metres": {
+        "maximum": 86.44784129911471,
+        "median": 85.27203767470806,
+        "minimum": 76.96395516438902,
+        "p99": 86.05866351164362
+      },
+      "raw_points": {
+        "maximum": 32812.0,
+        "median": 29761.0,
+        "minimum": 21917.0,
+        "p99": 32210.0
+      },
+      "voxel_points": {
+        "maximum": 31360.0,
+        "median": 28180.0,
+        "minimum": 20462.0,
+        "p99": 30732.0
+      }
+    },
+    "manifest_sha256": "065e9c8128d08307b9b5c1ae89092e6d229e65759c005ad8e50b3c595c6602be",
+    "missing_buckets": {
+      "commentary": [
+        "parkinglane"
+      ],
+      "driving": [
+        "parkinglane"
+      ],
+      "qa": [
+        "parkinglane"
+      ]
+    },
+    "pool_exclusions": {
+      "train": {
+        "commentary": 4540,
+        "dreamer": 13,
+        "driving": 0,
+        "geometry_qa": 0,
+        "qa": 13,
+        "rear_driving": 3734
+      },
+      "val": {
+        "commentary": 193,
+        "dreamer": 0,
+        "driving": 0,
+        "geometry_qa": 0,
+        "qa": 0,
+        "rear_driving": 147
+      }
+    },
+    "pools": {
+      "train": {
+        "commentary": 57422,
+        "dreamer": 61949,
+        "driving": 61962,
+        "geometry_qa": 61962,
+        "qa": 61949,
+        "rear_driving": 58228
+      },
+      "val": {
+        "commentary": 6555,
+        "dreamer": 6748,
+        "driving": 6748,
+        "geometry_qa": 6748,
+        "qa": 6748,
+        "rear_driving": 6601
+      }
+    },
+    "samples": {
+      "train": 61962,
+      "val": 6748
+    },
+    "validation_counts": {
+      "commentary": 512,
+      "dreamer": 512,
+      "driving": 4096,
+      "geometry_qa": 512,
+      "qa": 2048,
+      "rear_driving": 512
+    }
+  },
+  "pilot_ready": {
+    "audit_sha256": "f6295e038a49a4f7eebbb1b62a6f910bd70a5376a766e27d11fe8d3ae91e9d83",
+    "manifest_sha256": "065e9c8128d08307b9b5c1ae89092e6d229e65759c005ad8e50b3c595c6602be",
+    "passed": true,
+    "validation_sha256": "b646bb960a24284f5cc158a10acfbc1d60a00503b802e6a4b774089cdf7bde46"
+  },
+  "prepared_shard_bytes": 26689495040,
+  "recorded_at_utc": "2026-10-23T19:58:36.749555+00:00",
+  "smoke": {
+    "checks": {
+      "cache_parity_commentary": {
+        "cached_tokens": [
+          [
+            12480,
+            279,
+            6021,
+            13,
+            46905,
+            349,
+            311,
+            6541,
+            448,
+            279,
+            2169,
+            4628,
+            13,
+            12149,
+            7706,
+            25,
+            151645
+          ]
+        ],
+        "equal": true,
+        "text": "Follow the route. Accelerate to drive with the target speed. Waypoints:<|im_end|>",
+        "uncached_tokens": [
+          [
+            12480,
+            279,
+            6021,
+            13,
+            46905,
+            349,
+            311,
+            6541,
+            448,
+            279,
+            2169,
+            4628,
+            13,
+            12149,
+            7706,
+            25,
+            151645
+          ]
+        ]
+      },
+      "cache_parity_dreamer": {
+        "cached_tokens": [
+          [
+            12497,
+            7600,
+            438,
+            432,
+            11508,
+            311,
+            264,
+            4628,
+            429,
+            374,
+            2238,
+            3347,
+            13,
+            12149,
+            7706,
+            25,
+            151645
+          ]
+        ],
+        "equal": true,
+        "text": "Ignore instruction as it leads to a speed that is too low. Waypoints:<|im_end|>",
+        "uncached_tokens": [
+          [
+            12497,
+            7600,
+            438,
+            432,
+            11508,
+            311,
+            264,
+            4628,
+            429,
+            374,
+            2238,
+            3347,
+            13,
+            12149,
+            7706,
+            25,
+            151645
+          ]
+        ]
+      },
+      "cache_parity_geometry_qa": {
+        "cached_tokens": [
+          [
+            32,
+            25,
+            576,
+            1290,
+            3108,
+            315,
+            279,
+            5636,
+            374,
+            537,
+            1380,
+            264,
+            7310,
+            374,
+            3601,
+            311,
+            31796,
+            13,
+            151645
+          ]
+        ],
+        "diagnostic": {
+          "cached_argmax": 5636,
+          "first_different_step": 7,
+          "max_logit_error": 0.4375,
+          "uncached_argmax": 36274,
+          "uncached_top_two_gap": 0.125
+        },
+        "equal": false,
+        "text": "A: The right side of the ego vehicle lacks any LIDAR lights.<|im_end|>",
+        "uncached_tokens": [
+          [
+            32,
+            25,
+            576,
+            1290,
+            3108,
+            315,
+            279,
+            36274,
+            7310,
+            36756,
+            894,
+            444,
+            915,
+            934,
+            12711,
+            13,
+            151645
+          ]
+        ]
+      },
+      "cache_parity_paired": {
+        "cached_tokens": [
+          [
+            35054,
+            7706,
+            25,
+            151645
+          ]
+        ],
+        "equal": true,
+        "text": "Waypoints:<|im_end|>",
+        "uncached_tokens": [
+          [
+            35054,
+            7706,
+            25,
+            151645
+          ]
+        ]
+      },
+      "cache_parity_rgb": {
+        "cached_tokens": [
+          [
+            35054,
+            7706,
+            25,
+            151645
+          ]
+        ],
+        "equal": true,
+        "text": "Waypoints:<|im_end|>",
+        "uncached_tokens": [
+          [
+            35054,
+            7706,
+            25,
+            151645
+          ]
+        ]
+      },
+      "generation_cache_policy": {
+        "enabled": false,
+        "mismatched_tasks": [
+          "geometry_qa"
+        ],
+        "reason": "Keep the reference uncached path; BF16 cache equivalence has not passed the pilot gate"
+      },
+      "joint_backward_all_groups": {
+        "connector": 19.899666345254538,
+        "driving": 118.99671256717451,
+        "lidar": 18.482697238698364,
+        "lora": 44.54668079907232,
+        "navigation": 8.277849747902446,
+        "rgb": 33.269702252774216
+      },
+      "joint_optimizer_groups": {
+        "connector": {
+          "max_lr": 0.0001,
+          "parameters": 9641861
+        },
+        "driving": {
+          "max_lr": 1e-05,
+          "parameters": 848128
+        },
+        "lidar": {
+          "max_lr": 1e-05,
+          "parameters": 129855312
+        },
+        "lora": {
+          "max_lr": 1e-05,
+          "parameters": 17596416
+        },
+        "navigation": {
+          "max_lr": 1e-05,
+          "parameters": 592000
+        },
+        "rgb": {
+          "max_lr": 1e-06,
+          "parameters": 308495104
+        }
+      },
+      "language_connector_gradient": 14.127392768859863,
+      "loaded_released_and_utonia_strictly": {
+        "alignment_trainable": 9641861,
+        "total_parameters": 1104091125
+      },
+      "manifest": {
+        "path": "/ehsan/m.sadegh/simlingo_lidar/stage2/pilot/manifest.json",
+        "sha256": "065e9c8128d08307b9b5c1ae89092e6d229e65759c005ad8e50b3c595c6602be"
+      },
+      "passed": true,
+      "peak_memory_bytes": {
+        "allocated": 13156015616,
+        "reserved": 13996392448
+      },
+      "prefix_backbone_and_no_target_leakage": {
+        "backbone_max_error": 0.0,
+        "prefix_tokens": 128
+      },
+      "real_checkpoint_optimizer_and_cuda_rng_resume": true,
+      "route_connector_gradient": 0.5394287109375,
+      "task_forward_backward_commentary": true,
+      "task_forward_backward_dreamer": true,
+      "task_forward_backward_qa": true,
+      "task_forward_backward_rear_driving": true,
+      "task_pools": {
+        "train": {
+          "commentary": 122,
+          "dreamer": 128,
+          "driving": 128,
+          "geometry_qa": 128,
+          "qa": 128,
+          "rear_driving": 118
+        },
+        "val": {
+          "commentary": 125,
+          "dreamer": 128,
+          "driving": 128,
+          "geometry_qa": 128,
+          "qa": 128,
+          "rear_driving": 123
+        }
+      },
+      "tiny_learning_and_frozen_weights": {
+        "frozen_sha256": "0d7e0e3ed806b311dde7c2966ef01accef3fd6c732002986c4b2cc87942154fc",
+        "losses": [
+          7.39025093615055,
+          5.659264535084366,
+          5.838822302222252,
+          5.388948175311088,
+          4.892754207924008,
+          4.041666887700558,
+          3.4987393096089368,
+          3.1483375281095505,
+          2.9460608184337613,
+          2.670055630803108,
+          2.4281076505780224,
+          2.2241042882204054,
+          2.0444040283560754,
+          1.7688419252634051,
+          1.5613887384533882,
+          1.4191331591457128
+        ],
+        "presentations": 32,
+        "updates": 16
+      }
+    },
+    "elapsed_seconds": 102.31671450100839,
+    "limits": "Stage 2 bounded checks, not the full Stage 3 throughput profile",
+    "physical_gpu_uuid": "GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d"
+  },
+  "stage": 2,
+  "stage1_commit": "93d2080",
+  "stage1_recheck": "passed",
+  "stage3_started": false,
+  "status": "complete",
+  "unit_tests": 15,
+  "utonia_weight_sha256": "a0a2e5e234ce943082ae9ba26bcff74e285f16ed8d04fed5c36ffe8dc30ea353",
+  "worker_reproducibility": {
+    "fixed_validation_requests_repeat": true,
+    "identical_worker_requests": 10,
+    "manifest": "/ehsan/m.sadegh/simlingo_lidar/stage2/pilot/manifest.json",
+    "manifest_sha256": "065e9c8128d08307b9b5c1ae89092e6d229e65759c005ad8e50b3c595c6602be",
+    "no_group_overlap": true,
+    "original_target_comparisons": 8,
+    "passed": true,
+    "photometric_augmentation": "Seeded recursively; identical tensors across spawn workers",
+    "route_shape": [
+      20,
+      2
+    ],
+    "saved_cadence_seconds": 0.25,
+    "speed_waypoint_shape": [
+      10,
+      2
+    ],
+    "task_pools": {
+      "train": {
+        "commentary": 122,
+        "dreamer": 128,
+        "driving": 128,
+        "geometry_qa": 128,
+        "qa": 128,
+        "rear_driving": 118
+      },
+      "val": {
+        "commentary": 125,
+        "dreamer": 128,
+        "driving": 128,
+        "geometry_qa": 128,
+        "qa": 128,
+        "rear_driving": 123
+      }
+    },
+    "workers": [
+      0,
+      2
+    ]
+  }
+}

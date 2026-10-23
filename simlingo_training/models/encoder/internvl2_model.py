@@ -6,7 +6,7 @@ from transformers import AutoModel
 class LingoInternVLModel(nn.Module):
     def __init__(self, variant, *args, **kwargs):
         super().__init__()
-        self.model = AutoModel.from_pretrained(variant, trust_remote_code=True)
+        self.model = AutoModel.from_pretrained(variant, trust_remote_code=True, **kwargs)
         try:
             self.num_embeddings = self.model.language_model.model.embed_tokens.num_embeddings
         except:
@@ -142,4 +142,3 @@ class LingoInternVLModel(nn.Module):
                 adaptor_dict['inputs'][b][:len(adaptor_dict['language_inputs'][b])-i] = inputs_embeds[b][i:]
             
         return adaptor_dict
-            

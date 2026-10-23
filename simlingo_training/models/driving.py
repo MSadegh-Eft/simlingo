@@ -153,7 +153,10 @@ class DrivingModel(pl.LightningModule):
                 
                 inputs_driving = self.adaptors.driving(driving_input)
                 input_embed_concat = torch.cat((input_embeds, inputs_driving["inputs"][b_idx].unsqueeze(0)), dim=1)
-                features, logits = self.language_model.forward(input_embed_concat)
+                generated_mask = torch.ones(input_embeds.shape[:2], device=input_embeds.device, dtype=torch.bool)
+                generated_mask[:, :attention_mask.size(1)] = attention_mask.bool()
+                driving_mask = torch.ones(inputs_driving['inputs'][b_idx:b_idx+1].shape[:2], device=input_embeds.device, dtype=torch.bool)
+                features, logits = self.language_model.forward(input_embed_concat, attention_mask=torch.cat((generated_mask, driving_mask), dim=1))
 
                 len_driving = inputs_driving["inputs"].size(1)
 
@@ -176,7 +179,7 @@ class DrivingModel(pl.LightningModule):
                 self.language.append(self.tokenizer.batch_decode(sampled_tokens, skip_special_tokens=True)[0])
         else:
             # single forward pass same as during training so we can use the same function
-            features = self.forward_model(driving_input, adaptor_dict)
+            features, _ = self.forward_model(driving_input, adaptor_dict)
             outputs_by_adaptor = self.adaptors.split_outputs_by_adaptor(adaptor_dict, features)
             predictions = self.adaptors.driving.get_predictions(outputs_by_adaptor['driving'])
 

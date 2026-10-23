@@ -5,6 +5,11 @@ Implement in stages on `feat/simlingo-lidar`, based on clean commit
 review. Training duration is decided after the complete pipeline is profiled.
 Only physical GPU 2 is authorized. Benchmark evaluation and merging are deferred.
 
+Execution records: [Stage 1](../tools/lidar_stage1/stage1-results.json) and
+[Stage 2](lidar-stage2-report.md) are verified. Stage 3 has not started. The Stage 2
+report records disabled KV caching and the pilot's missing parking-lane bucket
+for review before longer training.
+
 ## Fixed model choices
 
 Use pretrained **Utonia Base**. No encoder/freezing/fine-tuning comparison grid is

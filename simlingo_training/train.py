@@ -61,8 +61,7 @@ def main(cfg: TrainConfig):
     print(OmegaConf.to_yaml(cfg))
     os.environ["WANDB_DISABLE_CODE"] = "True"
     
-    if cfg.overfit > 0:
-        overfit = cfg.overfit
+    overfit = cfg.overfit
         
     # setup logging
     setup_logging(cfg)
@@ -127,7 +126,6 @@ def main(cfg: TrainConfig):
         callbacks.append(lr_monitor)
     
     print(f"Number of GPUS: {cfg.gpus}")
-    overfit = 0
     
     if cfg.gpus >= 1:
         trainer = Trainer(

@@ -20,7 +20,10 @@ class VLMEncoderModel(nn.Module):
         self.token_size = self.embed_dim
 
         if 'internvl2' in self.variant.lower():
-            self.image_encoder = LingoInternVLModel(self.variant, *cfg)
+            self.image_encoder = LingoInternVLModel(
+                self.variant, revision=getattr(self, 'revision', None),
+                local_files_only=getattr(self, 'local_files_only', False),
+                use_flash_attn=getattr(self, 'use_flash_attn', True))
         else:
             raise ValueError(f"Unknown variant {self.variant}")
         
@@ -40,5 +43,10 @@ class VLMEncoderModel(nn.Module):
                 p.requires_grad = False
                 # p.requires_grad = False
             
-            for p in self.image_encoder.model.mlp1.parameters():
-                p.requires_grad = True
+            self.eval()
+
+    def train(self, mode=True):
+        super().train(mode)
+        if self.freeze:
+            super().train(False)
+        return self

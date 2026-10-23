@@ -85,7 +85,11 @@ class LLM(nn.Module):
             self.model = self.model.language_model
             self.model.embed_tokens = self.model.base_model.embed_tokens
         elif 'internvl' in self.variant.lower():
-            self.model = AutoModel.from_pretrained(self.variant, trust_remote_code=True)
+            self.model = AutoModel.from_pretrained(
+                self.variant, trust_remote_code=True,
+                revision=getattr(self, 'revision', None),
+                local_files_only=getattr(self, 'local_files_only', False),
+                use_flash_attn=getattr(self, 'use_flash_attn', True))
             self.model = self.model.language_model
             try:
                 self.model.embed_tokens = self.model.base_model.embed_tokens

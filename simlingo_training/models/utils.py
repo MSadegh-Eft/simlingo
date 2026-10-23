@@ -28,7 +28,9 @@ def summarise_losses(
 
     loss_values = {k: v for k, (v, _) in loss_dict.items()}
     loss_counts = {k: n for k, (_, n) in loss_dict.items()}
-    loss_averages = {k: torch.where(n.sum() > 0, v.sum() / n.sum(), 0.0) for k, (v, n) in loss_dict.items()}
+    # torch.where evaluates both branches: dividing by zero in its inactive
+    # branch still poisons backward. Counts are masks and never require gradients.
+    loss_averages = {k: (v * n.ne(0)).sum() / n.sum().clamp_min(1) for k, (v, n) in loss_dict.items()}
     if weights is None:
         loss = torch.stack(list(loss_averages.values())).sum()
     else:

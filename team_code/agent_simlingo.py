@@ -171,6 +171,7 @@ class LingoAgent(autonomous_agent.AutonomousAgent):
             ).to(self.device)
         torch.set_default_dtype(default_dtype)
         self.model.load_state_dict(torch.load(self.config_path))
+        self.model.eval()
         self.iter = self.config_path.split("epoch=")[-1].split("/")[0]
         self.session = self.config_path.split("/")[-4]
         

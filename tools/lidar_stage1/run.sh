@@ -10,6 +10,7 @@ export PYTHONNOUSERSITE=1
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 export CUDA_VISIBLE_DEVICES=2
 export CUDA_HOME="$ENV_DIR"
+export LD_LIBRARY_PATH="$ENV_DIR/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export OMP_NUM_THREADS=4
 export MAX_JOBS=4
 export TMPDIR=/data/ghazaleh/.cache/simlingo-lidar/tmp

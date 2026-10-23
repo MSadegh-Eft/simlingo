@@ -91,7 +91,7 @@ def get_chat_tokens(tokenizer, prompts: List[str], user_start_token_str: str, as
     }
 
 
-def get_custom_chat_template(conversations: List[Dict], tokenizer, encoder_variant: str, num_image_tokens_total: int, cache_root_dir: str = 'pretrained') -> Optional[Dict]:
+def get_custom_chat_template(conversations: List[Dict], tokenizer, encoder_variant: str, num_image_tokens_total: int, cache_root_dir: str = 'pretrained', conversation_path: Optional[str] = None) -> Optional[Dict]:
     # get the custom chat template
     # for full conversation, question only
     # https://huggingface.co/docs/transformers/main/en/chat_templating#can-i-use-chat-templates-in-training
@@ -108,8 +108,10 @@ def get_custom_chat_template(conversations: List[Dict], tokenizer, encoder_varia
     cache_dir = f"{cache_root_dir}/{(encoder_variant.split('/')[1])}"
     # get absolute path from workspace dir not wokring dir
     cache_dir = to_absolute_path(cache_dir)
-    model_path = f"{cache_dir}/conversation.py"
+    model_path = conversation_path or f"{cache_dir}/conversation.py"
     if not os.path.exists(model_path):
+        if conversation_path is not None:
+            raise FileNotFoundError(model_path)
         from huggingface_hub import snapshot_download
         snapshot_download(repo_id=encoder_variant, local_dir=cache_dir)
         
