@@ -1,0 +1,99 @@
+{
+  "stage": 1,
+  "status": "complete",
+  "recorded_at_utc": "2026-10-23T17:54:04.587790+00:00",
+  "branch": "feat/simlingo-lidar",
+  "base_commit": "4b143b74b235293d5b28737bcc496c3ec687fc92",
+  "environment": "/data/ghazaleh/miniconda3/envs/simlingo-lidar",
+  "artifact_root": "/ehsan/m.sadegh/simlingo_lidar",
+  "environment_location_reason": "SMB /ehsan does not support symlinks and some build permission operations",
+  "launch_command": "bash tools/lidar_stage1/run.sh <python arguments>",
+  "pythonpath_isolation_reason": "Login PYTHONPATH includes a CARLA Python 3.7 egg incompatible with Python 3.10",
+  "original_checkpoint_sha256": "ec8943723d266ee9f5f56f45d153a163b22616960bfccb741965ea5daa700d28",
+  "baseline_component_parity": {
+    "vision": {
+      "max_absolute_error": 0.0,
+      "allclose": true
+    },
+    "navigation": {
+      "max_absolute_error": 4.76837158203125e-07,
+      "allclose": true
+    },
+    "last_logits": {
+      "max_absolute_error": 2.4199485778808594e-05,
+      "allclose": true
+    },
+    "route": {
+      "max_absolute_error": 4.5299530029296875e-06,
+      "allclose": true
+    },
+    "speed_wps": {
+      "max_absolute_error": 8.58306884765625e-06,
+      "allclose": true
+    }
+  },
+  "baseline_fixture_limits": "Does not exercise agent run_step, commentary decoding, or full training data assembly",
+  "training_module_imports": {
+    "simlingo_training.train": true,
+    "simlingo_training.dataloader.datamodule": true,
+    "simlingo_training.dataloader.dataset_driving": true,
+    "simlingo_training.dataloader.dataset_dreamer": true,
+    "simlingo_training.dataloader.dataset_eval_qa_comm": true,
+    "simlingo_training.dataloader.dataset_eval_dreamer": true,
+    "original_augmentation_runtime": true
+  },
+  "utonia_source_commit": "de1f9deef4ee65e508d74347f8d0eb848d878abb",
+  "utonia_weight_revision": "9457f025e36c7001ee962a542f0d27a5b600e1e7",
+  "utonia_weight_sha256": "a0a2e5e234ce943082ae9ba26bcff74e285f16ed8d04fed5c36ffe8dc30ea353",
+  "utonia_parameters": 137253744,
+  "gpu_uuid": "GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d",
+  "gpu_kernel_checks": "FlashAttention BF16 and sparse FP32 forward/backward; CUDA scatter",
+  "utonia_real_scan": {
+    "raw_points": 30477,
+    "voxel_points": 29077,
+    "output_feature_shape": [
+      5897,
+      576
+    ],
+    "repeat_max_error": 0.0,
+    "peak_allocated_bytes": 1012676608,
+    "peak_reserved_bytes": 1226833920
+  },
+  "gpu_measurement_limits": "Inference and small kernel checks only; not an end-to-end training memory/throughput profile",
+  "sensor_archive_sha256": "02324f96c5426dcaaaa47cfbedf815fb7fd64d14c74288ba26171ef4d8ddbfc9",
+  "sensor_archive_routes": 26,
+  "synchronized_frames": 2470,
+  "quality_pass_routes": 23,
+  "eligible_windows_existing_indexing": 1727,
+  "raw_annotation_coverage": {
+    "commentary": {
+      "matched_frames": 1819,
+      "matched_routes": 23
+    },
+    "drivelm": {
+      "matched_frames": 2256,
+      "matched_routes": 23
+    },
+    "dreamer": {
+      "matched_frames": 2049,
+      "matched_routes": 23
+    }
+  },
+  "fixture_boxes_checked": 12,
+  "fixture_max_hit_count_difference": 1,
+  "space_free_bytes": 899552256000,
+  "model_implementation_changed": false,
+  "training_started": false,
+  "benchmark_started": false,
+  "next_stage": "Stage 2: manifests/preprocessing, spatial connector, task/loss masks, correctness fixes and tiny-data learning; user review before starting",
+  "detailed_reports": [
+    "/ehsan/m.sadegh/simlingo_lidar/reports/archive-audit.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/coordinate-check.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/baseline-original.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/baseline-new.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/preflight.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/utonia-assets.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/utonia-checkpoint-config.json",
+    "/ehsan/m.sadegh/simlingo_lidar/reports/training-imports.json"
+  ]
+}
