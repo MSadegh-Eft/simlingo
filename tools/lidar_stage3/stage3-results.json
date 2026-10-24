@@ -1,0 +1,539 @@
+{
+  "accumulation": 64,
+  "alignment_seconds_per_presentation": 1.8228894102030608,
+  "artifacts_sha256": {
+    "align-samples.jsonl": "665b17d93786aefe052cef3a25ed8d4c4f416b9edcbb50618b2d0171e1ff925d",
+    "joint-samples.jsonl": "495a56e56aa299b18baf0b2ac028fbbebeb1b5b595e583e6c853668a66311368",
+    "progress.json": "44fac4f2043a476d47d38d88a241c24ea1c2a12ea2866d08404a8a474b0154cf",
+    "resources.jsonl": "c58cbc68eb3f8a541f965f28005a801fddcf4799777269a438759714ee72b819",
+    "resume-samples.jsonl": "1cab4d820652c9d7daf71f9296be618f7a9cf9f3754075094be670afb09cf68e",
+    "scoring-correction.json": "abb75f57cb4e1d360a2e3edfcf2062508f984e45635825262292fa11a2119e65",
+    "stress.json": "bb8ca1a670e4e28b2c3c7ee8e6a742d650c0573b86b001507963a5fd6294887a",
+    "validation-paired-rescored.json": "c85ae2cb83b9fb481b4b233398044ff4e8045f239daf62a8d1be1b159872cffb",
+    "validation-paired.json": "e329af4cf4a82d3024b8ac753a444b253ba3b610ecf3a82242603b4d6bb7a57f",
+    "validation-rgb-rescored.json": "aa06fb49b3cf20d5f5978a129e5e8047d19d30e1b3b7b60596f5643c200842ef",
+    "validation-rgb.json": "b90875cb22df9020befe37cb64feab363ac4a5119cfc984840e2be70aa963337"
+  },
+  "baseline_limit": "Only four fixed requests per task, before any update. Full baseline and retention validation remain required before selecting a trained checkpoint.",
+  "benchmark_started": false,
+  "branch": "feat/simlingo-lidar",
+  "budgets": {
+    "alignment_48k": {
+      "checkpoint_count": 50,
+      "checkpoint_interval_updates": 15,
+      "checkpoint_seconds": 2395.637691754382,
+      "full_paired_and_rgb_validations": 1,
+      "monitor_paired_and_rgb_validations": 2,
+      "presentations": 48000,
+      "startup_seconds": 445.8464621088933,
+      "total_hours": {
+        "central": 29.92095795948854,
+        "planning_high": 52.36167642910494,
+        "planning_low": 23.936766367590835
+      },
+      "training_only_hours": {
+        "central": 24.305192136040812,
+        "planning_high": 42.53408623807142,
+        "planning_low": 19.444153708832648
+      },
+      "updates": 750
+    },
+    "joint_pilot_240k": {
+      "checkpoint_count": 313,
+      "checkpoint_interval_updates": 12,
+      "checkpoint_seconds": 14996.691950382432,
+      "full_paired_and_rgb_validations": 4,
+      "monitor_paired_and_rgb_validations": 4,
+      "presentations": 240000,
+      "startup_seconds": 445.8464621088933,
+      "total_hours": {
+        "central": 171.4223110529662,
+        "planning_high": 299.9890443426909,
+        "planning_low": 137.13784884237296
+      },
+      "training_only_hours": {
+        "central": 148.91518630085093,
+        "planning_high": 260.6015760264891,
+        "planning_low": 119.13214904068074
+      },
+      "updates": 3750
+    },
+    "larger_epoch_100k_eligible_frames": {
+      "checkpoint_count": 131,
+      "checkpoint_interval_updates": 12,
+      "checkpoint_seconds": 6276.570752396481,
+      "full_paired_and_rgb_validations": 2,
+      "monitor_paired_and_rgb_validations": 3,
+      "presentations": 100032,
+      "startup_seconds": 445.8464621088933,
+      "total_hours": {
+        "central": 73.31603512209323,
+        "planning_high": 128.30306146366314,
+        "planning_low": 58.65282809767458
+      },
+      "training_only_hours": {
+        "central": 62.06784965019467,
+        "planning_high": 108.61873688784067,
+        "planning_low": 49.65427972015574
+      },
+      "updates": 1563
+    },
+    "one_pilot_sampled_epoch_61962_frames": {
+      "checkpoint_count": 81,
+      "checkpoint_interval_updates": 12,
+      "checkpoint_seconds": 3880.933060642099,
+      "full_paired_and_rgb_validations": 2,
+      "monitor_paired_and_rgb_validations": 2,
+      "presentations": 62016,
+      "startup_seconds": 445.8464621088933,
+      "total_hours": {
+        "central": 48.790332715226775,
+        "planning_high": 85.38308225164687,
+        "planning_low": 39.03226617218142
+      },
+      "training_only_hours": {
+        "central": 38.47968414013988,
+        "planning_high": 67.33944724524478,
+        "planning_low": 30.783747312111906
+      },
+      "updates": 969
+    }
+  },
+  "checkpoint": {
+    "augmented_samples_identical": true,
+    "bytes": 8154358790,
+    "fp32_adam": true,
+    "load_seconds": 18.56179337995127,
+    "loaded_model_exact": true,
+    "loaded_optimizer_exact": true,
+    "resumed_next_update_model": {
+      "atol": 1e-06,
+      "bitwise": true,
+      "compared_tensors": 1530,
+      "different_tensors": 0,
+      "max_absolute_error": 0.0,
+      "rtol": 1e-05,
+      "within_tolerance": true
+    },
+    "resumed_next_update_model_bitwise": true,
+    "resumed_next_update_optimizer": {
+      "atol": 1e-08,
+      "bitwise": true,
+      "compared_tensors": 3111,
+      "different_tensors": 0,
+      "max_absolute_error": 0.0,
+      "rtol": 0.001,
+      "within_tolerance": true
+    },
+    "resumed_next_update_optimizer_bitwise": true,
+    "resumed_window": {
+      "components": {
+        "distance": 1.493064153453578,
+        "language": 0.6227288006902582,
+        "presence": 0.6864026409064607,
+        "route": 0.028532014886513933,
+        "speed": 0.34912529974196027
+      },
+      "counts": {
+        "distance": 92,
+        "language": 862,
+        "presence": 203,
+        "route": 960,
+        "speed": 480
+      },
+      "gradient_norm": 27.247220993041992,
+      "loss": 1.43627947419074,
+      "optimizer_seconds": 0.09554481413215399,
+      "peak_allocated_bytes": 31158209536,
+      "peak_reserved_bytes": 31813795840,
+      "presentations": 64,
+      "seconds": 135.4815451898612,
+      "system_after": {
+        "children_rss_bytes": 9175040,
+        "gpu": "NVIDIA RTX 6000 Ada Generation, GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d, 32353 MiB, 87 %, 78, 266.60 W",
+        "host_available_bytes": 35303481344,
+        "process_rss_bytes": 14614413312
+      },
+      "system_before": {
+        "children_rss_bytes": 9175040,
+        "gpu": "NVIDIA RTX 6000 Ada Generation, GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d, 32353 MiB, 62 %, 68, 216.28 W",
+        "host_available_bytes": 35315707904,
+        "process_rss_bytes": 14614413312
+      }
+    },
+    "sampler_equal": true,
+    "save_seconds": 47.91275383508764,
+    "scheduler_equal": true,
+    "sha256": "9dafc205e711f52af5bbcbc21b5c7cdce83d8fae67c1b926bc14c7a3c706533a"
+  },
+  "data_limit": "61,962 eligible pilot training frames. 100k is a larger-data scenario, not a claim that a full-dataset eligibility census is complete. Parking-lane bucket absent.",
+  "executed": {
+    "align_presentations": 64,
+    "align_updates": 1,
+    "joint_presentations_including_resume_repeat": 256,
+    "joint_unique_presentations": 192,
+    "joint_updates_executed": 4,
+    "stress_backward_cases": 7,
+    "validation_examples": 44
+  },
+  "generation_cache": false,
+  "generation_cap": 100,
+  "gpu_name": "NVIDIA RTX 6000 Ada Generation",
+  "initial_released_rgb_baseline": "/ehsan/m.sadegh/simlingo_lidar/stage3/run-20261024c/validation-rgb-rescored.json",
+  "joint_io_seconds_per_presentation": 0.09269983518242952,
+  "joint_other_seconds_per_presentation": 0.03757664996858997,
+  "joint_seconds_per_presentation": 2.233727794512764,
+  "joint_weighted_compute_seconds": 2.1034513093617444,
+  "loader": [
+    {
+      "combined_rss_peak_bytes": 6005313536,
+      "prefetch_factor": null,
+      "samples": 64,
+      "seconds": 8.421970163006335,
+      "wait_median_seconds": 0.08136280812323093,
+      "wait_p95_seconds": 0.16302633660379798,
+      "workers": 0
+    },
+    {
+      "combined_rss_peak_bytes": 9446019072,
+      "prefetch_factor": 1,
+      "samples": 64,
+      "seconds": 19.580855798209086,
+      "wait_median_seconds": 0.037258894997648895,
+      "wait_p95_seconds": 0.12969196478370576,
+      "workers": 2
+    }
+  ],
+  "long_training_started": false,
+  "maximum_observed_question_tokens": 586,
+  "maximum_observed_teacher_tokens": 619,
+  "maximum_stress_training_voxels": 31271,
+  "microbatch": 1,
+  "next": "Review measured budget and parking coverage with the user. Notify before any main training on GPU 2; do not auto-launch Stage 4.",
+  "numerical_policy": {
+    "cublas_workspace": ":4096:8",
+    "cudnn_benchmark": false,
+    "flash_backward_deterministic": true,
+    "schema": 1,
+    "tf32": false,
+    "torch_deterministic": true,
+    "vision_position_grid": "Native grid identity; reject unreviewed resize",
+    "waypoint_accumulation": "FP32 triangular scan"
+  },
+  "observed_joint_runtime_change": {
+    "corrected_mean_update_seconds": 133.35934928350616,
+    "earlier_mean_update_seconds": 106.1848381900927,
+    "relative_change": 0.2559170551709604,
+    "scope": "First two joint windows; shared GPU/SMB load, not a controlled performance ablation"
+  },
+  "paired_gradient_diagnostic": {
+    "corrected_bitwise": true,
+    "corrected_l2_difference": 0.0,
+    "original_l2_difference": 0.004465540168918297,
+    "path": "/ehsan/m.sadegh/simlingo_lidar/stage3/recovery-diagnostic-final.json",
+    "sha256": "beff533cbacc9bbc5967daeb693025405b19f4ec3c928c506d3002f119c78e51"
+  },
+  "peak_allocated_gib": 29.018343925476074,
+  "peak_reserved_gib": 29.62890625,
+  "physical_gpu_uuid": "GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d",
+  "prior_profiles": "run-20261024a stopped on strict next-update bitwise inequality; run-20261024b failed the declared Adam tolerance. Both discarded weights. A paired-gradient diagnostic then isolated backward variability; deterministic attention, FP32 waypoint scan and native-grid identity removed it before this fresh full profile.",
+  "profile_source_sha256": "f89a548c41b2a481be9ca8513fe74efcf45bfb84611738e913364590105ad628",
+  "realized_joint_counts": {
+    "commentary/paired": 20,
+    "commentary/rgb": 4,
+    "dreamer/paired": 53,
+    "dreamer/rgb": 15,
+    "driving/paired": 18,
+    "driving/rgb": 4,
+    "geometry_qa/paired": 31,
+    "qa/paired": 20,
+    "qa/rgb": 5,
+    "rear_driving/paired": 22
+  },
+  "recorded_at_utc": "2026-10-24T13:55:34.499918+00:00",
+  "recovery_criterion": "Exact full model/Adam reload; next accumulation-64 update within predeclared model atol=1e-6/rtol=1e-5 and Adam atol=1e-8/rtol=1e-3; scheduler, sampler and augmented samples identical. No automatic tolerance changes.",
+  "recovery_scope": "Full-state completed-boundary reload and next update in the same GPU process; server reboot/fresh-process trajectory parity was not tested.",
+  "resource_monitor": {
+    "minimum_host_available_gib": 25.957035064697266,
+    "peak_device_total_used_mib_including_other_jobs": 32353.0,
+    "peak_process_and_children_rss_gib": 20.61435317993164,
+    "samples": 658
+  },
+  "run": "/ehsan/m.sadegh/simlingo_lidar/stage3/run-20261024c",
+  "scoring_correction": {
+    "change": "Remove decoded assistant chat header from reference scoring; retain raw strings, predictions and timing measurements",
+    "corrected_scoring_source_sha256": "43336e4d54d427af2a9cb7794e44698ec8398818b50166e41b9cde28889eaa77",
+    "outputs": {
+      "paired": {
+        "metrics": {
+          "commentary_rouge_l": {
+            "groups": 4,
+            "population_sha256": "642b8f705a9eeb1e36f78085e78d015b1605632ec6ff45f41a63b1b0d6b2d22c",
+            "samples": 4,
+            "value": 66.96831537257069
+          },
+          "dreamer_decision_accuracy": {
+            "groups": 4,
+            "population_sha256": "05cd1f4821fdf1801a9b78f69c63c01dac9dbd61edaca72bbfccf2287e9fa479",
+            "samples": 4,
+            "value": 100.0
+          },
+          "geometry_distance_0_accuracy": {
+            "groups": 9,
+            "population_sha256": "58fcbf48b7ed3c6169ddcd27aca9ce0adebc8f7bb961c2cc64015b92977bf4b5",
+            "samples": 22,
+            "value": 22.22222222222222
+          },
+          "geometry_distance_1_accuracy": {
+            "groups": 2,
+            "population_sha256": "565e4cf2869d6e300c38ea24c1f5fd83989cc4a138b52fbfe70b16c2238f99aa",
+            "samples": 2,
+            "value": 0.0
+          },
+          "geometry_distance_2_accuracy": {
+            "groups": 8,
+            "population_sha256": "a3af6b9f2d11b1c902843586d1ca8c1b991a3eabe20bb763ee3d741ca8f1ff97",
+            "samples": 21,
+            "value": 0.0
+          },
+          "geometry_distance_3_accuracy": {
+            "groups": 5,
+            "population_sha256": "044c742ababafda98e3a8270ab316271c386fbebcce181d64857d5012b2d8c1f",
+            "samples": 14,
+            "value": 0.0
+          },
+          "geometry_presence_0_accuracy": {
+            "groups": 11,
+            "population_sha256": "2460f72f99f476b41e45883965117051f3c9c08e9ada2fabca59c5710b3b112d",
+            "samples": 24,
+            "value": 100.0
+          },
+          "geometry_presence_1_accuracy": {
+            "groups": 10,
+            "population_sha256": "5ce8d509864f78b78b9b641613d7f5b95ebe87ff6b4799ec7c5d0ed456e5105d",
+            "samples": 20,
+            "value": 15.0
+          },
+          "geometry_presence_2_accuracy": {
+            "groups": 11,
+            "population_sha256": "2460f72f99f476b41e45883965117051f3c9c08e9ada2fabca59c5710b3b112d",
+            "samples": 24,
+            "value": 100.0
+          },
+          "geometry_presence_3_accuracy": {
+            "groups": 11,
+            "population_sha256": "2460f72f99f476b41e45883965117051f3c9c08e9ada2fabca59c5710b3b112d",
+            "samples": 24,
+            "value": 50.0
+          },
+          "geometry_qa_accuracy": {
+            "groups": 4,
+            "population_sha256": "0267c03f879d25e7e8cd27483ccce38d7313379af760da02cda3812334242e0c",
+            "samples": 4,
+            "value": 0.0
+          },
+          "qa_exact_match": {
+            "groups": 4,
+            "population_sha256": "5c2799559252704bf2a23a6aa78f59ecfc568f9bf45edc0e52f1c327679fc4f7",
+            "samples": 4,
+            "value": 100.0
+          },
+          "qa_structured_accuracy": {
+            "groups": 1,
+            "population_sha256": "cdc615e23e02a18dd8501b3b50ba7bf9c53bca379668639b8c9362a116d40f34",
+            "samples": 1,
+            "value": 100.0
+          },
+          "route_ade": {
+            "groups": 11,
+            "population_sha256": "b4141fff41d462e36cc4cbad1d03d00860601252168c410b6c7bc69b9290e703",
+            "samples": 16,
+            "value": 0.05936809290539135
+          },
+          "speed_ade": {
+            "groups": 11,
+            "population_sha256": "b4141fff41d462e36cc4cbad1d03d00860601252168c410b6c7bc69b9290e703",
+            "samples": 16,
+            "value": 0.9634800698946823
+          }
+        },
+        "metrics_changed": false,
+        "path": "/ehsan/m.sadegh/simlingo_lidar/stage3/run-20261024c/validation-paired-rescored.json",
+        "sha256": "c85ae2cb83b9fb481b4b233398044ff4e8045f239daf62a8d1be1b159872cffb"
+      },
+      "rgb": {
+        "metrics": {
+          "commentary_rouge_l": {
+            "groups": 4,
+            "population_sha256": "642b8f705a9eeb1e36f78085e78d015b1605632ec6ff45f41a63b1b0d6b2d22c",
+            "samples": 4,
+            "value": 81.20978120978121
+          },
+          "dreamer_decision_accuracy": {
+            "groups": 4,
+            "population_sha256": "05cd1f4821fdf1801a9b78f69c63c01dac9dbd61edaca72bbfccf2287e9fa479",
+            "samples": 4,
+            "value": 100.0
+          },
+          "qa_exact_match": {
+            "groups": 4,
+            "population_sha256": "5c2799559252704bf2a23a6aa78f59ecfc568f9bf45edc0e52f1c327679fc4f7",
+            "samples": 4,
+            "value": 100.0
+          },
+          "qa_structured_accuracy": {
+            "groups": 1,
+            "population_sha256": "cdc615e23e02a18dd8501b3b50ba7bf9c53bca379668639b8c9362a116d40f34",
+            "samples": 1,
+            "value": 100.0
+          },
+          "route_ade": {
+            "groups": 11,
+            "population_sha256": "b4141fff41d462e36cc4cbad1d03d00860601252168c410b6c7bc69b9290e703",
+            "samples": 16,
+            "value": 0.05040086077695543
+          },
+          "speed_ade": {
+            "groups": 11,
+            "population_sha256": "b4141fff41d462e36cc4cbad1d03d00860601252168c410b6c7bc69b9290e703",
+            "samples": 16,
+            "value": 0.8815420329232108
+          }
+        },
+        "metrics_changed": false,
+        "path": "/ehsan/m.sadegh/simlingo_lidar/stage3/run-20261024c/validation-rgb-rescored.json",
+        "sha256": "aa06fb49b3cf20d5f5978a129e5e8047d19d30e1b3b7b60596f5643c200842ef"
+      }
+    },
+    "timed_scoring_source_sha256": "43336e4d54d427af2a9cb7794e44698ec8398818b50166e41b9cde28889eaa77"
+  },
+  "stage": 3,
+  "stage2_recheck": {
+    "audit_sha256": "f6295e038a49a4f7eebbb1b62a6f910bd70a5376a766e27d11fe8d3ae91e9d83",
+    "manifest_sha256": "065e9c8128d08307b9b5c1ae89092e6d229e65759c005ad8e50b3c595c6602be",
+    "passed": true,
+    "validation_sha256": "b646bb960a24284f5cc158a10acfbc1d60a00503b802e6a4b774089cdf7bde46"
+  },
+  "status": "complete",
+  "stress_limit": "Exact maximum training-cloud voxel count plus candidate-based long contexts; synthetic combined-cloud/text and forced 100-token diagnostics are resource checks only. No silent truncation or sample drops.",
+  "task_rates": {
+    "commentary/paired": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 4.325486745487433,
+      "mean_generated_tokens": 23.35,
+      "median_compute_seconds": 4.3405782035551965,
+      "mixture_weight": 0.1,
+      "p95_compute_seconds": 4.9827335234731445,
+      "samples": 20
+    },
+    "commentary/rgb": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 2.3683652802719735,
+      "mean_generated_tokens": 20.25,
+      "median_compute_seconds": 2.1373382904566824,
+      "mixture_weight": 0.03333333333333333,
+      "p95_compute_seconds": 2.9587609092355702,
+      "samples": 4
+    },
+    "dreamer/paired": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 3.256553843872235,
+      "mean_generated_tokens": 10.867924528301886,
+      "median_compute_seconds": 3.1975665600039065,
+      "mixture_weight": 0.30000000000000004,
+      "p95_compute_seconds": 3.9718445921316743,
+      "samples": 53
+    },
+    "dreamer/rgb": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 1.574925950805967,
+      "mean_generated_tokens": 10.066666666666666,
+      "median_compute_seconds": 1.5110962660983205,
+      "mixture_weight": 0.1,
+      "p95_compute_seconds": 1.8898398797493425,
+      "samples": 15
+    },
+    "driving/paired": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 1.0667093506522685,
+      "mean_generated_tokens": 0.0,
+      "median_compute_seconds": 1.0706699554575607,
+      "mixture_weight": 0.1,
+      "p95_compute_seconds": 1.139805466425605,
+      "samples": 18
+    },
+    "driving/rgb": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 0.3825535984360613,
+      "mean_generated_tokens": 0.0,
+      "median_compute_seconds": 0.3900588379474357,
+      "mixture_weight": 0.03333333333333333,
+      "p95_compute_seconds": 0.39804793082876133,
+      "samples": 4
+    },
+    "geometry_qa/paired": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 1.1909288441191517,
+      "mean_generated_tokens": 0.0,
+      "median_compute_seconds": 1.0490572738926858,
+      "mixture_weight": 0.1,
+      "p95_compute_seconds": 1.1607849409338087,
+      "samples": 31
+    },
+    "qa/paired": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 1.0754007330164312,
+      "mean_generated_tokens": 0.0,
+      "median_compute_seconds": 1.0552536565810442,
+      "mixture_weight": 0.1,
+      "p95_compute_seconds": 1.170827082230244,
+      "samples": 20
+    },
+    "qa/rgb": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 0.3608643066138029,
+      "mean_generated_tokens": 0.0,
+      "median_compute_seconds": 0.36337256501428783,
+      "mixture_weight": 0.03333333333333333,
+      "p95_compute_seconds": 0.36662276717834175,
+      "samples": 5
+    },
+    "rear_driving/paired": {
+      "hit_100_token_cap": 0,
+      "mean_compute_seconds": 0.9941388761455362,
+      "mean_generated_tokens": 0.0,
+      "median_compute_seconds": 0.9993552544619888,
+      "mixture_weight": 0.1,
+      "p95_compute_seconds": 1.1325010469416157,
+      "samples": 22
+    }
+  },
+  "trainability": "Released RGB/projector, LoRA, nav/driving weights preserved; base LLM frozen; fixed agreed Utonia policy",
+  "uncertainty": "Planning range 0.8x..1.75x is a heuristic, not a confidence interval. A small subset, shared GPU/SMB load and future generation lengths can change timing.",
+  "unit_tests": 26,
+  "unit_tests_log_sha256": "78ef2207a6825983ade54808ad6e04e4bf1f29b89874f8218b96c1b853f7a94b",
+  "validation_cadence": "Costed proposal only: A final full validation and two monitors; B full at 1000/2000/3000/3750, monitors at 500/1500/2500/3500; baseline RGB full is an additional one-time cost.",
+  "validation_extrapolation": {
+    "paired": {
+      "full_hours": {
+        "central": 2.8316427697075737,
+        "planning_high": 4.955374846988254,
+        "planning_low": 2.2653142157660593
+      },
+      "full_seconds": 10193.913970947266,
+      "monitor_seconds": 673.0435594841838,
+      "sample_count": 24
+    },
+    "rgb": {
+      "full_hours": {
+        "central": 1.4506579350183408,
+        "planning_high": 2.5386513862820963,
+        "planning_low": 1.1605263480146728
+      },
+      "full_seconds": 5222.368566066027,
+      "monitor_seconds": 306.451577283442,
+      "sample_count": 20
+    }
+  },
+  "weights_discarded": true
+}

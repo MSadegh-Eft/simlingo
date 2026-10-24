@@ -5,10 +5,14 @@ Implement in stages on `feat/simlingo-lidar`, based on clean commit
 review. Training duration is decided after the complete pipeline is profiled.
 Only physical GPU 2 is authorized. Benchmark evaluation and merging are deferred.
 
-Execution records: [Stage 1](../tools/lidar_stage1/stage1-results.json) and
-[Stage 2](lidar-stage2-report.md) are verified. Stage 3 has not started. The Stage 2
-report records disabled KV caching and the pilot's missing parking-lane bucket
-for review before longer training.
+Execution records: [Stage 1](../tools/lidar_stage1/stage1-results.json),
+[Stage 2](lidar-stage2-report.md), and the corrected single-GPU
+[Stage 3 profile](lidar-stage3-report.md) are verified. Stage 3 found and corrected
+reference scoring and backward repeatability issues before completing its full
+profile. No main training has started. Review the measured budget, disabled KV
+caching and the pilot's missing parking-lane bucket before longer training.
+Notify the user before any main training on GPU 2; the provisional budgets below
+do not authorize an automatic launch.
 
 ## Fixed model choices
 
@@ -125,6 +129,15 @@ state. Avoid global BF16 module construction. Use activation checkpointing where
 needed. Target training-process peak below 40 GiB and bound CPU worker/prefetch RAM.
 Never silently discard difficult/OOM samples.
 
+Create actual training models with
+`simlingo_training.lidar.numerics.make_training_model()`. Stage 3's full recovery
+check required deterministic FlashAttention backward in Qwen, vision and Utonia,
+strict PyTorch/CUBLAS settings, FP32 cumulative waypoint arithmetic, and native-grid
+vision position identity instead of redundant bicubic interpolation. This keeps
+pretrained parameters and architecture intact; other patch grids fail until their
+resize policy is reviewed. Bind this policy into checkpoint metadata. The report
+includes its measured throughput cost and the initial failed checks.
+
 Before any long run, profile the full task mixture, generation, forward/backward,
 I/O, validation and checkpoint saving. Report estimated hours for alignment, pilot
 and a larger-data epoch; agree the actual budget with the user. 288k total
@@ -163,6 +176,11 @@ Use tmux, atomic checkpoints at optimizer boundaries every 100 updates or about
 30 minutes, and bounded last/best/one-recovery retention. Include optimizer,
 scheduler, RNG, sampler position, augmentation seeds and config hashes. Test resume;
 tmux alone does not survive server reboot.
+
+Stage 3 verified all loaded model/Adam tensors and the complete next update in the
+same GPU process. Before a long run, the actual training entry point still needs
+a fresh-process resume smoke check and the complete released RGB validation
+baseline; Stage 3's small validation timing subsets do not establish retention.
 
 Temporal LiDAR is a separate reviewed extension: -0.5/-0.25/0 s histories, shared
 encoder, timestamps and 128 output tokens. Saved half-sweeps use privileged pose
