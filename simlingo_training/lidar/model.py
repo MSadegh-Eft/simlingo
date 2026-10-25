@@ -9,7 +9,7 @@ from omegaconf import OmegaConf
 from transformers import AutoProcessor
 
 from simlingo_training.models.driving import DrivingModel
-from simlingo_training.lidar.data import SNAPSHOT, Sample
+from simlingo_training.lidar.data import SNAPSHOT, Sample, CONTEXT_LIMIT, GENERATION_LIMIT
 from simlingo_training.lidar.perception import LidarPerception
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -74,6 +74,8 @@ class LidarDrivingModel(DrivingModel):
 
     def hidden(self, embeds, past=None, use_cache=False):
         past_length = 0 if past is None else past[0][0].size(-2)
+        if past_length+embeds.size(1)>CONTEXT_LIMIT:
+            raise ValueError('LLM context exceeds the profiled bound; do not truncate')
         mask = torch.ones((1,past_length+embeds.size(1)),device=embeds.device,dtype=torch.long)
         positions = torch.arange(past_length,past_length+embeds.size(1),device=embeds.device)[None]
         return self.backbone()(inputs_embeds=embeds,attention_mask=mask,position_ids=positions,
@@ -100,6 +102,8 @@ class LidarDrivingModel(DrivingModel):
         return embeddings,geometry
 
     def generate_ids(self, sample, max_new_tokens=100, use_cache=None):
+        if not 1<=max_new_tokens<=GENERATION_LIMIT:
+            raise ValueError('Generation length must stay within the profiled 100-token cap')
         use_cache = self.use_cache if use_cache is None else use_cache
         with self.generation_mode():
             context,_ = self.context(sample)

@@ -3,6 +3,10 @@ import os
 from pathlib import Path
 import random
 import importlib.metadata
+import platform
+import sys
+
+import cv2
 
 import numpy as np
 import torch
@@ -19,17 +23,26 @@ def checkpoint_metadata(model,manifest,experiment_config):
     sources=sorted((root/'simlingo_training').rglob('*.py'))
     code={str(p.relative_to(root)):digest_file(p) for p in sources}
     manifest=Path(manifest)
+    import utonia
+    ut_root=Path(utonia.__file__).resolve().parent
+    vision_module=sys.modules[type(model.vision_model.image_encoder.model.vision_model).__module__]
+    external_sources={'utonia/'+str(p.relative_to(ut_root)):digest_file(p) for p in sorted(ut_root.rglob('*.py'))}
+    external_sources.update({'snapshot/'+p.name:digest_file(p) for p in sorted(SNAPSHOT.iterdir())
+                             if p.is_file() and p.suffix in ('.py','.json','.txt')})
+    external_sources['loaded_vision_module']=digest_file(vision_module.__file__)
     return {'schema':1,'stage':model.stage,'generation_cache':getattr(model,'use_cache',False),'manifest_sha256':digest_file(manifest),
         'validation_sha256':digest_file(manifest.parent/'validation.json') if (manifest.parent/'validation.json').exists() else None,
         'preprocess':PREPROCESS_VERSION,'utonia_sha256':WEIGHT_SHA256,
         'hf_snapshot_revision':SNAPSHOT.name,
         'released_config_sha256':digest_file(root/'models/simlingo/simlingo/.hydra/config.yaml'),
         'released_sha256':'ec8943723d266ee9f5f56f45d153a163b22616960bfccb741965ea5daa700d28',
-        'code':code,'task_counts':list(ALIGN_COUNTS if model.stage=='align' else JOINT_COUNTS),
+        'code':code,'external_sources':external_sources,'task_counts':list(ALIGN_COUNTS if model.stage=='align' else JOINT_COUNTS),
         'loss_weights':LOSS_WEIGHTS.copy(),'maximum_lrs':{g['name']:g['lr'] for g in model.optimizer_groups()},
         'optimizer':{'type':'AdamW','weight_decay':.1,'beta2':.999,'eps':1e-8,'clip_norm':.3},
         'scheduler':{'type':'OneCycleLR','warmup_fraction':.05,'div_factor':25,'final_div_factor':10000,'beta1':[.95,.85,.95]},
-        'versions':{k:importlib.metadata.version(k) for k in ('torch','transformers','peft','spconv-cu124','flash-attn')},
+        'versions':{**{k:importlib.metadata.version(k) for k in ('torch','transformers','peft','spconv-cu124','flash-attn',
+            'numpy','scipy','Pillow','imgaug','laspy','lazrs','tokenizers','omegaconf')},
+            'python':platform.python_version(),'cuda':torch.version.cuda,'cudnn':torch.backends.cudnn.version(),'opencv':cv2.__version__},
         'experiment_config':experiment_config}
 
 
@@ -69,11 +82,12 @@ def step_window(model,samples,optimizer,scheduler=None,device='cuda',generation_
 
 
 def save_checkpoint(path,model,optimizer,scheduler,sampler,updates,metadata):
+    from simlingo_training.lidar.sparse_kernels import dump
     path = Path(path); path.parent.mkdir(parents=True,exist_ok=True)
     if any(p.grad is not None for p in model.parameters()):
         # The caller must clear gradients at an optimizer boundary, not mid-window.
         raise ValueError('Clear gradients before checkpointing at a completed update')
-    state = {'schema':1,'model':model.state_dict(),'stage':model.stage,'optimizer':optimizer.state_dict(),
+    state = {'schema':1,'model':model.state_dict(),'stage':model.stage,'optimizer':optimizer.state_dict(),'sparse_kernels':dump(model),
              'scheduler':scheduler.state_dict() if scheduler else None,'sampler':sampler.state_dict(),
              'updates':updates,'metadata':metadata,'rng':{'python':random.getstate(),'numpy':np.random.get_state(),
              'torch':torch.get_rng_state(),'cuda':torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else None}}
@@ -84,6 +98,7 @@ def save_checkpoint(path,model,optimizer,scheduler,sampler,updates,metadata):
 
 
 def load_checkpoint(path,model,optimizer,scheduler,sampler,metadata):
+    from simlingo_training.lidar.sparse_kernels import restore
     # Only checkpoints produced by this trusted local training process are accepted.
     state = torch.load(str(path),map_location='cpu',weights_only=False)
     if state['schema']!=1 or state['stage']!=model.stage or state['metadata']!=metadata:
@@ -94,6 +109,7 @@ def load_checkpoint(path,model,optimizer,scheduler,sampler,metadata):
     optimizer.load_state_dict(state['optimizer'])
     if scheduler: scheduler.load_state_dict(state['scheduler'])
     sampler.load_state_dict(state['sampler'])
+    restore(model,state.get('sparse_kernels'))
     random.setstate(state['rng']['python']); np.random.set_state(state['rng']['numpy']); torch.set_rng_state(state['rng']['torch'])
     if state['rng']['cuda'] is not None: torch.cuda.set_rng_state_all(state['rng']['cuda'])
     return state['updates']

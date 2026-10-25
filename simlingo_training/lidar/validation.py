@@ -78,7 +78,7 @@ def finalize_manifest(path):
     atomic_json(path,document)
     # Recheck cross-shard duplicates, including annotations, before publishing.
     reader=ShardReader(path.parent,document['members'])
-    document['shards']={}
+    document['shards']=document.get('inherited_shards',{}).copy()
     for index_path in sorted(path.parent.glob('*.index.json')):
         metadata=json.loads(index_path.read_text()); index=metadata['members']
         shard=index_path.name.removesuffix('.index.json')+'.tar'

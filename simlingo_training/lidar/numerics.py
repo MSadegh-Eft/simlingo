@@ -62,6 +62,8 @@ def native_grid_positions(embeddings,positions,height,width):
 
 def configure_model(model):
     prepare_environment()
+    from simlingo_training.lidar.sparse_kernels import configure
+    configure()
     import flash_attn
     # Utonia imports the package; InternVision imports the interface function
     # into its pinned remote module. Configure both references explicitly.
@@ -76,10 +78,11 @@ def configure_model(model):
     torch.backends.cudnn.benchmark=False
     torch.backends.cudnn.deterministic=True
     torch.use_deterministic_algorithms(True)
-    policy={'schema':1,'torch_deterministic':True,'flash_backward_deterministic':True,
+    policy={'schema':2,'torch_deterministic':True,'flash_backward_deterministic':True,
             'cublas_workspace':os.environ['CUBLAS_WORKSPACE_CONFIG'],'tf32':False,
             'waypoint_accumulation':'FP32 triangular scan','cudnn_benchmark':False}
     policy['vision_position_grid']='Native grid identity; reject unreviewed resize'
+    policy['sparse_kernel_checkpointing']='Python dispatch; FP32; split-K=1; checkpoint tuner tables; prime before update zero'
     model.lidar_numerics_policy=policy
     return policy
 

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "budget_reviewed": false,
+  "manifest": "/ehsan/m.sadegh/simlingo_lidar/stage2/pilot-parking-v2/manifest.json",
+  "readiness_report": "/ehsan/m.sadegh/simlingo_lidar/readiness/result.json",
+  "baseline_result": "/ehsan/m.sadegh/simlingo_lidar/readiness/baseline/result.json",
+  "checkpoint_interval_seconds": 1800,
+  "initial_weights_sha256": null,
+  "stage": "joint",
+  "total_updates": 1161,
+  "full_validation_updates": [
+    581,
+    1161
+  ],
+  "monitor_updates": [
+    290,
+    871
+  ],
+  "checkpoint_interval_updates": 12,
+  "output": "/ehsan/m.sadegh/simlingo_lidar/stage5/joint-one-epoch"
+}

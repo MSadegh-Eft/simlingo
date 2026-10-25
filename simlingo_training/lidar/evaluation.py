@@ -113,7 +113,7 @@ def retention_gate(candidate, baseline):
     return {'passed':all(c['passed'] for c in checks.values()),'checks':checks}
 
 
-def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,check=None):
+def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,check=None,on_record=None):
     """Return records including generated examples; caller controls artifact path.
 
     RGB retention excludes geometry QA: it has no camera-grounded target. Other
@@ -130,6 +130,7 @@ def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,c
                     if check: check()
                     start=time.monotonic()
                     request=Request(**{k:v for k,v in item.items() if k!='uid'})
+                    if mode=='rgb': request=replace(request,replay=True)
                     sample=dataset[request]
                     if sample.uid!=item['uid']: raise ValueError('Fixed validation UID/index mismatch')
                     if mode=='rgb': sample=replace(sample,cloud=None)
@@ -157,6 +158,7 @@ def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,c
                         'generated_tokens':int(generated.numel()) if generated is not None else 0,
                         'teacher_tokens':len(sample.ids),'question_tokens':len(sample.question_ids),
                         'io_transfer_seconds':loaded-start,'compute_seconds':end-loaded,'total_seconds':end-start})
+                    if on_record: on_record(records[-1])
                     del sample,generated,geometry
     finally:
         for module,flag in flags.items(): module.training=flag

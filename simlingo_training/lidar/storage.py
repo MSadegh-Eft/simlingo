@@ -150,6 +150,14 @@ def quality_pass(result):
     return result['scores']['score_route'] > 94 and result['num_infractions'] == benign
 
 
+def official_split(route):
+    """Recognize both released collector layouts, without inferring from town."""
+    parts=PurePosixPath(route).parts
+    if 'routes_training' in parts or 'training_parking_lane' in parts: return 'train'
+    if 'routes_validation' in parts or 'validation_parking_lane' in parts: return 'val'
+    raise ValueError(f'Unrecognized official partition: {route}')
+
+
 def merge_index(root,index,new):
     previous,current=ShardReader(root,index),ShardReader(root,new)
     for member in index.keys() & new.keys():
@@ -193,7 +201,7 @@ def build_manifest(root, index, benchmark=None, maximum_train=100000):
             excluded[route]=matches; excluded_groups.add(route_group(route))
     for route in routes:
         if route+'/results.json.gz' not in index or not quality_pass(reader.json(route+'/results.json.gz')): continue
-        split = 'val' if '/routes_validation/' in route else 'train' if '/routes_training/' in route else None
+        split = official_split(route)
         town = PurePosixPath(route).name.split('_')[0]
         if split is None or (split=='train' and town=='Town13') or (split=='val' and town!='Town13'):
             raise ValueError(f'Unrecognized official partition: {route}')

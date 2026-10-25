@@ -5,6 +5,7 @@ import gzip
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 
 import cv2
@@ -24,6 +25,21 @@ SPECIAL = ['<WAYPOINTS>','<WAYPOINTS_DIFF>','<ORG_WAYPOINTS_DIFF>','<ORG_WAYPOIN
 TASKS = ('dreamer','driving','qa','commentary','rear_driving','geometry_qa')
 JOINT_COUNTS = (384,128,128,128,96,96)  # 960 presentations; exact original-family/replay quotas.
 ALIGN_COUNTS = (24,8,8,8,8,8)          # 64 paired presentations.
+CONTEXT_LIMIT=2048
+GENERATION_LIMIT=100
+COMMANDS={1:'go left at the next intersection',2:'go right at the next intersection',3:'go straight',4:'follow the road',5:'change lane left',6:'change lane right'}
+
+
+def navigation_prompt(current):
+    return f"Current speed: {round(current['speed'],1)} m/s. Target waypoint: <TARGET_POINT><TARGET_POINT>. Command: {COMMANDS[current['command']]}. "
+
+
+def check_context_lengths(teacher,question,paired=True,driving=True):
+    prefix=128 if paired else 0
+    required=max(prefix+teacher,prefix+question+GENERATION_LIMIT+(30 if driving else 0))
+    if required>CONTEXT_LIMIT:
+        raise ValueError(f'Context needs {required} tokens, beyond the profiled {CONTEXT_LIMIT}; never truncate')
+    return required
 
 
 @dataclass(frozen=True)
@@ -168,7 +184,7 @@ def photometric(image,seed):
 
 
 class ManifestDataset:
-    def __init__(self, manifest, tokenizer, split='train', augment=False, max_samples=None):
+    def __init__(self, manifest, tokenizer, split='train', augment=False, max_samples=None, metadata_cache=None):
         self.path = Path(manifest)
         raw = self.path.read_bytes(); self.manifest_hash = hashlib.sha256(raw).hexdigest()
         document = json.loads(raw)
@@ -190,7 +206,23 @@ class ManifestDataset:
         # creating hundreds of thousands of tiny shared Torch storages in workers.
         self.geometry={k:np.zeros((len(self.rows),4),dtype=bool if 'valid' in k else np.int64 if k=='distance' else np.float32)
                        for k in ('presence','presence_valid','distance','distance_valid')}
-        for i,row in enumerate(self.rows):
+        cache_path=None; cache_loaded=False
+        if metadata_cache is not None:
+            from simlingo_training.lidar.storage import digest_file, atomic_json
+            binding={'schema':1,'manifest':self.manifest_hash,'split':split,'max_samples':max_samples,
+                     'sources':{name:digest_file(Path(__file__).with_name(name)) for name in ('data.py','storage.py','perception.py')}}
+            cache_path=Path(metadata_cache)/(hashlib.sha256(json.dumps(binding,sort_keys=True).encode()).hexdigest()+'.json')
+            if cache_path.exists():
+                cache=json.loads(cache_path.read_text())
+                if cache['binding']!=binding: raise ValueError('Dataset metadata cache provenance differs')
+                self.pools=cache['pools']; self.row_buckets={int(k):set(v) for k,v in cache['row_buckets'].items()}
+                self.geometry={k:np.asarray(cache['geometry'][k],dtype=v.dtype) for k,v in self.geometry.items()}
+                if any(v.shape!=(len(self.rows),4) for v in self.geometry.values()): raise ValueError('Invalid cached geometry shape')
+                if set(self.pools)!=set(TASKS) or any(not 0<=i<len(self.rows) for pool in self.pools.values() for i in pool):
+                    raise ValueError('Invalid cached task eligibility')
+                if set(self.row_buckets)!=set(range(len(self.rows))): raise ValueError('Incomplete cached scenario buckets')
+                cache_loaded=True
+        for i,row in enumerate(self.rows) if not cache_loaded else []:
             self.pools['driving'].append(i)
             annotations = {k:self.reader.json(p) for k,p in row['annotations'].items()}
             if self._questions(annotations.get('drivelm')): self.pools['qa'].append(i)
@@ -209,6 +241,13 @@ class ManifestDataset:
             self.row_buckets[i] = scenario_buckets([self.reader.json(p) for p in row['measurements']],boxes,row['route'])
             if g['presence'][1:].any():
                 self.pools['rear_driving'].append(i)
+        if cache_path is not None and not cache_loaded:
+            cache_path.parent.mkdir(parents=True,exist_ok=True)
+            unique=cache_path.with_name(cache_path.stem+f'.{os.getpid()}.json')
+            atomic_json(unique,{'binding':binding,'pools':self.pools,
+                'row_buckets':{str(k):sorted(v) for k,v in self.row_buckets.items()},
+                'geometry':{k:v.tolist() for k,v in self.geometry.items()}})
+            os.replace(unique,cache_path)
         config=OmegaConf.load(Path(__file__).resolve().parents[2]/'models/simlingo/simlingo/.hydra/config.yaml')
         self.bucket_weights=dict(config.data_module.train_partitions)
         self.bucket_pools={task:{bucket:[i for i in self.pools[task] if bucket in self.row_buckets[i]] for bucket in self.bucket_weights}
@@ -269,8 +308,7 @@ class ManifestDataset:
             laz = laspy.read(io.BytesIO(self.reader.read(row['lidar'])),laz_backend=laspy.LazBackend.Lazrs)
             cloud = prepare_cloud(np.column_stack((laz.x,laz.y,laz.z)), row['frame']*.25)
             geometry = {k:torch.from_numpy(values[request.index]) for k,values in self.geometry.items()}
-        commands = {1:'go left at the next intersection',2:'go right at the next intersection',3:'go straight',4:'follow the road',5:'change lane left',6:'change lane right'}
-        prompt = f"Current speed: {round(current['speed'],1)} m/s. Target waypoint: <TARGET_POINT><TARGET_POINT>. Command: {commands[current['command']]}. "
+        prompt = navigation_prompt(current)
         answer = 'Waypoints:'
         if request.task=='qa':
             options = self._questions(annotations.get('drivelm'))
@@ -314,6 +352,6 @@ class ManifestDataset:
         teacher, question = get_custom_chat_template([conv],self.tokenizer,'OpenGVLab/InternVL2-1B',len(pixels)*256,
                                                      conversation_path=str(SNAPSHOT/'conversation.py'))
         ids = teacher['phrase_ids'][0]; mask = teacher['loss_masking'][0] & teacher['phrase_valid'][0]
-        if len(ids)+128+30>2048: raise ValueError('Context exceeds the unprofiled 2048-token bound; reprofile rather than truncate')
+        check_context_lengths(len(ids),len(question['phrase_ids'][0]),cloud is not None,request.task not in ('qa','geometry_qa'))
         return Sample(pixels,ids,mask,question['phrase_ids'][0],torch.from_numpy(navigation),torch.from_numpy(waypoints),
                       torch.from_numpy(route),cloud,geometry,request.task,row['id'],request.position)

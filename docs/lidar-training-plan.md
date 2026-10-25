@@ -9,8 +9,11 @@ Execution records: [Stage 1](../tools/lidar_stage1/stage1-results.json),
 [Stage 2](lidar-stage2-report.md), and the corrected single-GPU
 [Stage 3 profile](lidar-stage3-report.md) are verified. Stage 3 found and corrected
 reference scoring and backward repeatability issues before completing its full
-profile. No main training has started. Review the measured budget, disabled KV
-caching and the pilot's missing parking-lane bucket before longer training.
+profile. No main training has started. Pre-training readiness work adds audited
+parking coverage in `stage2/pilot-parking-v2` (74,285 training / 13,434 validation
+frames), verifies fresh-process recovery in both stages and completes the full
+released RGB baseline before launch. Review the measured budget and disabled KV
+caching before longer training.
 Notify the user before any main training on GPU 2; the provisional budgets below
 do not authorize an automatic launch.
 
@@ -88,7 +91,9 @@ positions and geometry head. Preserve autograd through the frozen LLM. Proposed
 budget: 48k presentations / 750 optimizer updates.
 
 Stage B uses the trainability table above and a fresh optimizer/scheduler from
-aligned weights. Proposed pilot ceiling: 240k presentations / 3750 updates.
+aligned weights. Review one sampled epoch first: 74,304 presentations / 1,161
+updates for the expanded pilot. The older 240k / 3,750-update proposal remains a
+ceiling, not an automatic initial budget. Decide this after the alignment report.
 
 | Task family | Stage B share |
 |---|---:|
@@ -138,6 +143,15 @@ pretrained parameters and architecture intact; other patch grids fail until thei
 resize policy is reviewed. Bind this policy into checkpoint metadata. The report
 includes its measured throughput cost and the initial failed checks.
 
+Fresh-process verification additionally requires numerical-policy schema 2:
+checkpoint spconv's sparse kernel tuning tables through its Python dispatcher,
+retain FP32 and split-K=1, and prime the stage's forward/backward kernels before
+the initial checkpoint. Priming restores buffers/RNG/gradients and performs no
+optimizer update. Initialize imgaug's lazy global generator before setting the
+training seeds. These changes address an actual fresh-process failure that the
+same-process profile did not expose. This kernel state is separate from LLM KV
+caching, which remains disabled.
+
 Before any long run, profile the full task mixture, generation, forward/backward,
 I/O, validation and checkpoint saving. Report estimated hours for alignment, pilot
 and a larger-data epoch; agree the actual budget with the user. 288k total
@@ -173,8 +187,9 @@ prefix/masks/positions/output slicing, separate gradient paths, frozen weights,
 optimizer groups, RGB-only mode, strict reload/resume and generation caching.
 
 Use tmux, atomic checkpoints at optimizer boundaries every 100 updates or about
-30 minutes, and bounded last/best/one-recovery retention. Include optimizer,
-scheduler, RNG, sampler position, augmentation seeds and config hashes. Test resume;
+30 minutes, an initial checkpoint at update zero, and bounded last/best/one-recovery
+retention. Include optimizer, scheduler, RNG, sampler position, augmentation seeds,
+sparse kernel choices and config hashes. Test resume;
 tmux alone does not survive server reboot.
 
 Stage 3 verified all loaded model/Adam tensors and the complete next update in the
