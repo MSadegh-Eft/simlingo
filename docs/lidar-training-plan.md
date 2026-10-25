@@ -9,11 +9,14 @@ Execution records: [Stage 1](../tools/lidar_stage1/stage1-results.json),
 [Stage 2](lidar-stage2-report.md), and the corrected single-GPU
 [Stage 3 profile](lidar-stage3-report.md) are verified. Stage 3 found and corrected
 reference scoring and backward repeatability issues before completing its full
-profile. No main training has started. Pre-training readiness work adds audited
+profile. No main training has started. Completed
+[pre-training readiness checks](lidar-readiness-report.md) add audited
 parking coverage in `stage2/pilot-parking-v2` (74,285 training / 13,434 validation
-frames), verifies fresh-process recovery in both stages and completes the full
-released RGB baseline before launch. Review the measured budget and disabled KV
-caching before longer training.
+frames), verify exact fresh-process recovery in both stages and establish the full
+7,680-request released RGB baseline. All 37 tests pass. Review the actual budget
+before Stage 4: the proposed 750-update alignment is about 30.7 hours including
+validation/checkpoints, with a 24.5–53.7-hour planning band under shared load.
+LLM KV caching remains disabled.
 Notify the user before any main training on GPU 2; the provisional budgets below
 do not authorize an automatic launch.
 

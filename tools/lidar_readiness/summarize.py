@@ -109,9 +109,13 @@ def main():
              'conditional_100k_epoch':budget('joint',math.ceil(100000/64),2,3,12)}
     report={'status':'technical_checks_complete_budget_review_pending','technical_checks_passed':True,
         'recorded_at_utc':datetime.now(timezone.utc).isoformat(),'branch':branch,'manifest_sha256':ready['manifest_sha256'],
+        'implementation_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,text=True).strip(),
+        'report_generator_sha256':digest_file(__file__),
         'dataset_ready':ready,'unit_tests':int(match[1]),'budget_reviewed':False,'main_training_started':False,
         'numerical_policy':binding['experiment_config']['numerics'],
         'physical_gpu_uuid':stage3['physical_gpu_uuid'],'dataset':audit,'baseline_metrics':baseline['metrics'],
+        'hardware_at_report':subprocess.check_output(['nvidia-smi','-i','2','--query-gpu=index,uuid,name,driver_version,memory.total',
+            '--format=csv,noheader'],text=True).strip(),
         'baseline_structured_target_coverage':baseline['structured_target_coverage'],
         'independent_target_classes':artifacts['target-populations.json']['target_classes'],
         'baseline_parking_metrics':baseline['by_scenario_bucket']['parkinglane'],
@@ -180,11 +184,35 @@ Verification passed:
   graph, exactly 100 uncached generated tokens and driving backward. This combined
   extreme is a resource test, not a training example or learning result.
 
-The full released RGB metrics and exact structured-target coverage are in the
-machine-readable report. Structured accuracy measures its parseable subset;
-open-ended QA exact match is also reported. These are engineering gates, not
-evidence of driving safety or improved rear awareness. Complete paired evaluation
-and retention of a trained candidate are performed after alignment.
+The released RGB baseline, averaged within source groups and then across groups:
+
+| Metric | Result | Scored requests |
+|---|---:|---:|
+| Route ADE | {baseline['metrics']['route_ade']['value']:.5f} m | {baseline['metrics']['route_ade']['samples']:,} |
+| Speed-waypoint ADE | {baseline['metrics']['speed_ade']['value']:.5f} m | {baseline['metrics']['speed_ade']['samples']:,} |
+| QA exact match | {baseline['metrics']['qa_exact_match']['value']:.2f}% | 2,048 |
+| Structured QA accuracy | {baseline['metrics']['qa_structured_accuracy']['value']:.2f}% | 485 |
+| Dreamer decision accuracy | {baseline['metrics']['dreamer_decision_accuracy']['value']:.2f}% | 501 |
+| Commentary ROUGE-L | {baseline['metrics']['commentary_rouge_l']['value']:.2f} / 100 | 512 |
+
+Both driving metrics measure waypoint position errors in metres. Structured QA
+covers 485/2,048 targets (23.68%), and Dreamer covers 501/512 (97.85%); both span
+all 59 groups. The independent annotation-only audit matches these exact scoring
+populations. Unknown targets are excluded explicitly, while an unparseable
+prediction for a known target is wrong. Parking-maneuver results include 155
+driving requests across 16 groups; its commentary/Dreamer subgroups are small and
+are descriptive only. Exact counts and generated examples remain in the artifacts.
+These are engineering gates, not evidence of driving safety or improved rear
+awareness. Complete paired evaluation and retention of a trained candidate are
+performed after alignment.
+
+The accepted GPU checks peak at {max(align['peak_reserved_bytes'],joint['peak_reserved_bytes'],artifacts['resume-joint/global-stress.json']['peak_reserved_bytes'])/1024**3:.2f} GiB reserved,
+below the 40 GiB process limit. Exhaustive text maxima are 643 teacher tokens and
+596 question tokens; reserving prefix, generation and driving queries needs at
+most 854 tokens against the 2,048-token limit. The synthetic backward stress uses
+the largest training cloud (31,361 voxels), resident joint Adam state and 100
+uncached generated tokens. Validation's largest cloud is 31,516 voxels and uses
+no-grad evaluation; all eligible scans were audited on CPU.
 
 | Proposed next run | Presentations / updates | Central estimate | Planning range |
 |---|---:|---:|---:|

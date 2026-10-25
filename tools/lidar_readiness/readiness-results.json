@@ -1,0 +1,3737 @@
+{
+  "artifact_hashes": {
+    "assets.json": "5d69d7fb0ff1a9ef74f280c1c933381ec1372c5630af70c7dbef4fb9b4836aaf",
+    "baseline-resume-check.json": "7c94910f37ed32103dac0ae94ce49588a8686fd85ffd51678d40cbf7f23719d0",
+    "baseline/result.json": "5fad2d4367a928be79cb373039fce238bc3e2f7728065f550583e3b1cb0cc658",
+    "context-audit.json": "9c838abc890203e094579b555a7553d1dee4cff0a14d0d468ed4fc3ae45e0e38",
+    "integrity.json": "82c82272b8ae6de72e373633d13ed41ef1c632878efd473b1b38147564ab7a9c",
+    "metadata.json": "50573db7a2437fc053487b1480629122d5bc1e32fcfff7f9927f62df359349f8",
+    "resume-align/result.json": "48af377b468d3dfe7566adf22d85bffe482a6ec2ed90a4f741f31cfbba54a22d",
+    "resume-joint/global-stress.json": "2784de607f77a595b0fabec610ada557e806422ede8e76f651f449368aaf2082",
+    "resume-joint/result.json": "0f4988675103d3a608c38147869e7c1cf6049ebc48c079a1cf58d50d1b945dc9",
+    "target-populations.json": "0851389266765260117335fd54790c548e1bb92f0743a2cd6cd53242d3dea62c"
+  },
+  "baseline_full_seconds": 5555.199836540109,
+  "baseline_metrics": {
+    "commentary_rouge_l": {
+      "groups": 59,
+      "population_sha256": "da6db6e37fefebd9ce6810ea801776304f426b2c429491d2ea720267bb98b607",
+      "samples": 512,
+      "value": 80.747482950456
+    },
+    "dreamer_decision_accuracy": {
+      "groups": 59,
+      "population_sha256": "5d6f4b59d22ade7886b758ae95b2b4cc53cd4db296e56cbf5aa4428ee09839cb",
+      "samples": 501,
+      "value": 97.36346516007532
+    },
+    "qa_exact_match": {
+      "groups": 59,
+      "population_sha256": "a2a7f578486da205c847dd5ec776fbed5732757e15c0e6386c2f8d89c5f245fb",
+      "samples": 2048,
+      "value": 82.08517305227176
+    },
+    "qa_structured_accuracy": {
+      "groups": 59,
+      "population_sha256": "29ce8d69ef1822085a4b9ab6829e7edf534ac6fb4d987b6c66cc394e4aac7aa3",
+      "samples": 485,
+      "value": 92.34799569545332
+    },
+    "route_ade": {
+      "groups": 59,
+      "population_sha256": "c403fc1a3342597a2412f18dcb86cb85603cbe37937a04c79414b5964b0702e3",
+      "samples": 5632,
+      "value": 0.06342510211041615
+    },
+    "speed_ade": {
+      "groups": 59,
+      "population_sha256": "c403fc1a3342597a2412f18dcb86cb85603cbe37937a04c79414b5964b0702e3",
+      "samples": 5632,
+      "value": 0.7762749624404083
+    }
+  },
+  "baseline_parking_metrics": {
+    "metrics": {
+      "commentary_rouge_l": {
+        "groups": 8,
+        "population_sha256": "cda79467c182b0401b2cf3bafa86dc4ce849bbfab7a9018a8ac137faf7f3add8",
+        "samples": 9,
+        "value": 77.52947127096304
+      },
+      "dreamer_decision_accuracy": {
+        "groups": 8,
+        "population_sha256": "0170a3c6f593acf1264b2fd860bea517e0376753167de77eb77e7411bc27ab40",
+        "samples": 12,
+        "value": 100.0
+      },
+      "qa_exact_match": {
+        "groups": 16,
+        "population_sha256": "3a7dfcba2be91dfb065485af1df19360e25294a4766f7ddb7ac8e72a4f76c774",
+        "samples": 70,
+        "value": 73.45418470418471
+      },
+      "qa_structured_accuracy": {
+        "groups": 12,
+        "population_sha256": "71053aeabd5dd3d589d568d023cb0c17ecfdf6cc244d2e064e32931da90ce9f9",
+        "samples": 21,
+        "value": 93.05555555555554
+      },
+      "route_ade": {
+        "groups": 16,
+        "population_sha256": "22f26c0b7178df6bc0f12a252f2bfeab63611aea9e739831117f60b3da08bd60",
+        "samples": 155,
+        "value": 0.29763025671328647
+      },
+      "speed_ade": {
+        "groups": 16,
+        "population_sha256": "22f26c0b7178df6bc0f12a252f2bfeab63611aea9e739831117f60b3da08bd60",
+        "samples": 155,
+        "value": 0.716480396954576
+      }
+    },
+    "samples": 225
+  },
+  "baseline_structured_target_coverage": {
+    "dreamer_decision_accuracy": {
+      "groups": 59,
+      "population_sha256": "5d6f4b59d22ade7886b758ae95b2b4cc53cd4db296e56cbf5aa4428ee09839cb",
+      "samples": 501,
+      "target_fraction": 0.978515625,
+      "value": 97.36346516007532
+    },
+    "qa_structured_accuracy": {
+      "groups": 59,
+      "population_sha256": "29ce8d69ef1822085a4b9ab6829e7edf534ac6fb4d987b6c66cc394e4aac7aa3",
+      "samples": 485,
+      "target_fraction": 0.23681640625,
+      "value": 92.34799569545332
+    }
+  },
+  "branch": "feat/simlingo-lidar",
+  "budget_reviewed": false,
+  "budgets": {
+    "alignment": {
+      "central_hours": 30.662764937535027,
+      "checkpoint_count_upper": 52,
+      "checkpoint_interval_updates": 15,
+      "checkpoint_save_seconds": 19.275767195998924,
+      "full_validations_paired_and_rgb": 1,
+      "monitors_paired_and_rgb": 2,
+      "planning_high_hours": 53.659838640686296,
+      "planning_low_hours": 24.530211950028022,
+      "presentations": 48000,
+      "train_hours": 25.21307076958389,
+      "updates": 750
+    },
+    "conditional_100k_epoch": {
+      "central_hours": 75.45262125851843,
+      "checkpoint_count_upper": 134,
+      "checkpoint_interval_updates": 12,
+      "checkpoint_save_seconds": 29.03499602600641,
+      "full_validations_paired_and_rgb": 2,
+      "monitors_paired_and_rgb": 3,
+      "planning_high_hours": 132.04208720240726,
+      "planning_low_hours": 60.36209700681475,
+      "presentations": 100032,
+      "train_hours": 64.35403137133555,
+      "updates": 1563
+    },
+    "joint_240k_ceiling": {
+      "central_hours": 176.38466409459826,
+      "checkpoint_count_upper": 318,
+      "checkpoint_interval_updates": 12,
+      "checkpoint_save_seconds": 29.03499602600641,
+      "full_validations_paired_and_rgb": 4,
+      "monitors_paired_and_rgb": 4,
+      "planning_high_hours": 308.67316216554696,
+      "planning_low_hours": 141.10773127567862,
+      "presentations": 240000,
+      "train_hours": 154.40026720569952,
+      "updates": 3750
+    },
+    "joint_one_sampled_epoch": {
+      "central_hours": 58.335336514241064,
+      "checkpoint_count_upper": 100,
+      "checkpoint_interval_updates": 12,
+      "checkpoint_save_seconds": 29.03499602600641,
+      "full_validations_paired_and_rgb": 2,
+      "monitors_paired_and_rgb": 2,
+      "planning_high_hours": 102.08683889992186,
+      "planning_low_hours": 46.668269211392854,
+      "presentations": 74304,
+      "train_hours": 47.80232272688457,
+      "updates": 1161
+    }
+  },
+  "context_audit": {
+    "audit_source_sha256": "cd53055512538bf6233b78f94adb796972a92a25c0cf5506742c5b7e27d4a8d5",
+    "bound": 2048,
+    "data_source_sha256": "a7046442727437551bc97c493167b69cabac34a2d330e242e4c9208f369a2bf9",
+    "distinct_variants": 859627,
+    "driving_queries": 30,
+    "enumerated_variants": {
+      "commentary": 82404,
+      "dreamer": 1456918,
+      "driving": 87719,
+      "geometry_qa": 1578942,
+      "qa": 2352060
+    },
+    "generation_reserve": 100,
+    "image_tokens": 512,
+    "lidar_prefix": 128,
+    "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+    "maxima": {
+      "question": 596,
+      "reserved_context": 854,
+      "teacher": 643
+    },
+    "passed": true,
+    "rows": 87719,
+    "scope": "All original QA choices, visible commentary, Dreamer instructions and both safety modes; conservative superset of geometry texts. Both official splits. RGB-only lengths are smaller.",
+    "witness_batches": {
+      "question": [
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "driving",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        }
+      ],
+      "reserved_context": [
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0083"
+        },
+        {
+          "task": "driving",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/training_3_scenarios/routes_training/random_weather_seed_3_balanced_100/Town12_Rep0_31_route0_01_12_02_13_03:0084"
+        }
+      ],
+      "teacher": [
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "dreamer",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0071"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        },
+        {
+          "task": "qa",
+          "uid": "data/simlingo/lb1_split/routes_training/SignalizedJunctionRightTurn/Town05_Rep0_Town05_Scenario9_196_route0_01_11_18_55_43:0072"
+        }
+      ]
+    }
+  },
+  "dataset": {
+    "benchmark_screen": {
+      "excluded_groups": [
+        "Town04:Town04_Scenario7_51"
+      ],
+      "limits": "Physical containment screen; not proof of independent scenario design or of no prior released-checkpoint exposure",
+      "matches": {
+        "data/simlingo/lb1_split/routes_training/SignalizedJunctionLeftTurn/Town04_Rep0_Town04_Scenario7_51_route0_01_11_20_12_17": [
+          "28111"
+        ]
+      },
+      "rule": "Exclude the whole source group if any >=30m recorded trajectory is >=95% within 3m (3D) of a benchmark polyline",
+      "xml_sha256": "ffff24b3a2b8584632730fb42de7cb6036af780c3952cfef08ee8cf96a712f88"
+    },
+    "bucket_counts": {
+      "commentary": {
+        "acceleration_negative_1": 7222,
+        "acceleration_negative_5": 5780,
+        "acceleration_positive_1": 8994,
+        "acceleration_positive_5": 7127,
+        "all": 69286,
+        "changed_route": 1438,
+        "lateral_control_1_2": 11468,
+        "lateral_control_higher_5": 6515,
+        "leading_object_traffic.stop": 4846,
+        "leading_object_traffic.traffic_light": 7548,
+        "leading_object_vehicle": 40790,
+        "leading_object_walker": 290,
+        "parkinglane": 918,
+        "start_from_stop": 1500,
+        "vehicle_front": 1227,
+        "vehicle_side": 1257
+      },
+      "driving": {
+        "acceleration_negative_1": 7701,
+        "acceleration_negative_5": 6128,
+        "acceleration_positive_1": 9451,
+        "acceleration_positive_5": 7715,
+        "all": 74285,
+        "changed_route": 1439,
+        "lateral_control_1_2": 12026,
+        "lateral_control_higher_5": 7326,
+        "leading_object_traffic.stop": 4846,
+        "leading_object_traffic.traffic_light": 7548,
+        "leading_object_vehicle": 43949,
+        "leading_object_walker": 353,
+        "parkinglane": 1145,
+        "start_from_stop": 1676,
+        "vehicle_front": 1254,
+        "vehicle_side": 4034
+      },
+      "qa": {
+        "acceleration_negative_1": 7700,
+        "acceleration_negative_5": 6122,
+        "acceleration_positive_1": 9448,
+        "acceleration_positive_5": 7714,
+        "all": 74272,
+        "changed_route": 1439,
+        "lateral_control_1_2": 12026,
+        "lateral_control_higher_5": 7313,
+        "leading_object_traffic.stop": 4846,
+        "leading_object_traffic.traffic_light": 7548,
+        "leading_object_vehicle": 43949,
+        "leading_object_walker": 353,
+        "parkinglane": 1145,
+        "start_from_stop": 1676,
+        "vehicle_front": 1254,
+        "vehicle_side": 4034
+      }
+    },
+    "geometry": {
+      "train": {
+        "distance_valid_per_sector": [
+          47132,
+          17342,
+          49112,
+          26371
+        ],
+        "presence_valid_per_sector": [
+          73334,
+          72841,
+          73579,
+          71718
+        ]
+      },
+      "val": {
+        "distance_valid_per_sector": [
+          8598,
+          2114,
+          9355,
+          3662
+        ],
+        "presence_valid_per_sector": [
+          13354,
+          13239,
+          13400,
+          12807
+        ]
+      }
+    },
+    "groups": {
+      "train": 762,
+      "val": 59
+    },
+    "integrity": "Every eligible RGB decoded; LAZ voxelized; boxes, current/navigation and complete future measurements validated",
+    "joint_cycle_replay": 192,
+    "joint_cycle_tasks": {
+      "commentary": 128,
+      "dreamer": 384,
+      "driving": 128,
+      "geometry_qa": 96,
+      "qa": 128,
+      "rear_driving": 96
+    },
+    "lidar_stats": {
+      "furthest_point_metres": {
+        "maximum": 86.44784129911471,
+        "median": 85.25270257221082,
+        "minimum": 76.96395516438902,
+        "p99": 86.01726015406719
+      },
+      "raw_points": {
+        "maximum": 32949.0,
+        "median": 30478.0,
+        "minimum": 21917.0,
+        "p99": 32447.0
+      },
+      "voxel_points": {
+        "maximum": 31516.0,
+        "median": 28978.0,
+        "minimum": 20462.0,
+        "p99": 30971.819999999992
+      }
+    },
+    "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+    "missing_buckets": {
+      "commentary": [],
+      "driving": [],
+      "qa": []
+    },
+    "pool_exclusions": {
+      "train": {
+        "commentary": 4999,
+        "dreamer": 13,
+        "driving": 0,
+        "geometry_qa": 0,
+        "qa": 13,
+        "rear_driving": 3987
+      },
+      "val": {
+        "commentary": 316,
+        "dreamer": 1,
+        "driving": 0,
+        "geometry_qa": 0,
+        "qa": 0,
+        "rear_driving": 259
+      }
+    },
+    "pools": {
+      "train": {
+        "commentary": 69286,
+        "dreamer": 74272,
+        "driving": 74285,
+        "geometry_qa": 74285,
+        "qa": 74272,
+        "rear_driving": 70298
+      },
+      "val": {
+        "commentary": 13118,
+        "dreamer": 13433,
+        "driving": 13434,
+        "geometry_qa": 13434,
+        "qa": 13434,
+        "rear_driving": 13175
+      }
+    },
+    "samples": {
+      "train": 74285,
+      "val": 13434
+    },
+    "validation_counts": {
+      "commentary": 512,
+      "dreamer": 512,
+      "driving": 4096,
+      "geometry_qa": 512,
+      "qa": 2048,
+      "rear_driving": 512
+    }
+  },
+  "dataset_ready": {
+    "audit_sha256": "e25b0a0c0d1e452fba9c50165cce8f54b10d4857cc6932febfce1a3d84d5ca38",
+    "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+    "passed": true,
+    "validation_sha256": "f523c2d9029b8d4b673d54bfea6d3c87248a1a5d842520d0a89b4ff82cc41064"
+  },
+  "free_shared_bytes": 866973306880,
+  "global_stress": {
+    "context_audit_sha256": "9c838abc890203e094579b555a7553d1dee4cff0a14d0d468ed4fc3ae45e0e38",
+    "generated_tokens": 100,
+    "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+    "optimizer_state_resident": true,
+    "passed": true,
+    "peak_allocated_bytes": 24720751616,
+    "peak_reserved_bytes": 24989663232,
+    "question_tokens": 596,
+    "scope": "Synthetic upper resource bound: independently maximal teacher/question texts and training cloud, teacher graph retained, uncached generation and driving backward. No optimizer update or learning claim.",
+    "seconds": 11.392347332992358,
+    "stress_source_sha256": "596481dcd478d0c851b5237b003a94cc6e99dfbff5f160bf2ad989f8ec69796a",
+    "teacher_tokens": 643,
+    "voxel_points": 31361
+  },
+  "hardware_at_report": "2, GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d, NVIDIA RTX 6000 Ada Generation, 580.178.04, 46068 MiB",
+  "implementation_commit": "9b74a71d2982e8e4070ac1b6bc46e379e87cf425",
+  "independent_target_classes": {
+    "dreamer": {
+      "follow": 393,
+      "refuse": 108,
+      "unparsed": 11
+    },
+    "qa": {
+      "category": 485,
+      "unparsed": 1563
+    }
+  },
+  "limits": [
+    "No alignment or main joint training launched; bounded disposable updates only",
+    "Fresh interpreters simulate restart on the same server; no physical reboot was performed",
+    "Paired full validation and RGB retention of a trained candidate run after alignment, not before it",
+    "Timing range is a heuristic under shared GPU/storage load; future generation lengths can change costs",
+    "CARLA sensor/runtime parity, closed-loop improvement, broader training and merging remain later reviewed stages"
+  ],
+  "main_training_started": false,
+  "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+  "numerical_policy": {
+    "cublas_workspace": ":4096:8",
+    "cudnn_benchmark": false,
+    "flash_backward_deterministic": true,
+    "schema": 2,
+    "sparse_kernel_checkpointing": "Python dispatch; FP32; split-K=1; checkpoint tuner tables; prime before update zero",
+    "tf32": false,
+    "torch_deterministic": true,
+    "vision_position_grid": "Native grid identity; reject unreviewed resize",
+    "waypoint_accumulation": "FP32 triangular scan"
+  },
+  "paired_full_forecast_seconds": 10843.591084910458,
+  "physical_gpu_uuid": "GPU-3e4277b2-2a3c-6f9b-6a87-273c09bfd49d",
+  "prepared_stage2_bytes": 31631011840,
+  "prior_fresh_process_failure": {
+    "accepted": false,
+    "artifact_sha256": "3bfd523f19146aede2448839831d91a753661ceee79dd68e96c7d364ccafca08",
+    "checks": {
+      "completed_boundary": true,
+      "cuda_rng": true,
+      "generated_tokens": true,
+      "loss_stats": false,
+      "model": false,
+      "numpy_rng": false,
+      "optimizer": false,
+      "optimizer_groups": true,
+      "python_rng": true,
+      "requests": true,
+      "sampler": true,
+      "samples": true,
+      "scheduler": true,
+      "torch_rng": true
+    },
+    "fix": "Checkpoint spconv Python tuner tables, FP32/split-K=1 and prime kernels before checkpoint zero; initialize lazy imgaug RNG before seeding training"
+  },
+  "recommendation": "Review alignment 750 updates first. Review a single sampled joint epoch after its report; 240k is a ceiling, not the initial default.",
+  "recorded_at_utc": "2026-10-25T10:23:15.279705+00:00",
+  "recovery": {
+    "align": {
+      "accumulation": 64,
+      "boundary_bytes": 4494412758,
+      "checks": {
+        "completed_boundary": true,
+        "cuda_rng": true,
+        "generated_tokens": true,
+        "loss_stats": true,
+        "model": true,
+        "numpy_rng": true,
+        "optimizer": true,
+        "optimizer_groups": true,
+        "python_rng": true,
+        "requests": true,
+        "sampler": true,
+        "samples": true,
+        "scheduler": true,
+        "torch_rng": true
+      },
+      "generation_cap": 100,
+      "load_seconds": 8.40415195999958,
+      "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+      "metadata": {
+        "code": {
+          "simlingo_training/callbacks/__init__.py": "e305baefb8d88c9811189a63f6be96955241e7992d992e393fcdfb3fb51955b4",
+          "simlingo_training/callbacks/visualise.py": "7863522631ee22ea6ef906280f38bc724dc7b3057a43f0afb1f107dab83b8d19",
+          "simlingo_training/config.py": "d243213e795b8b3198516ed280229469f25fb472e1edc208924dd8997ad5843e",
+          "simlingo_training/dataloader/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "simlingo_training/dataloader/datamodule.py": "b759f0140f1175c90cb795bc316b3a2ec7fa8aeae7fed53c2a3fd0db6be1792e",
+          "simlingo_training/dataloader/dataset_base.py": "9b4ec2aadf35330791460a33cbe0658515feeb6ad84092fa8507530ab8259a89",
+          "simlingo_training/dataloader/dataset_dreamer.py": "ec41ac3515164f86d05998741ddc6593480ca2f5c6f58df85ac5cb45f80f0c1e",
+          "simlingo_training/dataloader/dataset_driving.py": "abf871d894b4ef77fdec725da6209e42b3b6168742ea8de9566d2db06c6adb0c",
+          "simlingo_training/dataloader/dataset_eval_dreamer.py": "a0738ff28c2aedb53242753e8035bfa4b2ab1cc093b7e01672d2b6738dcaafc9",
+          "simlingo_training/dataloader/dataset_eval_qa_comm.py": "5f23d557f9cc897d61365e7a8e69394ee9af4c08b8e4811764622ae75cebe702",
+          "simlingo_training/eval.py": "555cd39ebddc7d31b78ff47453c494275e96e759e90681714065fc428c847437",
+          "simlingo_training/eval_metrics.py": "d5c9e22d7b6505f7a0b9e6523c4b2d889b4ae52ac4c985ed25150b264d69fc54",
+          "simlingo_training/lidar/__init__.py": "5498f69a2ff9fc7e78bb10b7fc64843d01edb5a14a3be1a84b35742138d289af",
+          "simlingo_training/lidar/data.py": "a7046442727437551bc97c493167b69cabac34a2d330e242e4c9208f369a2bf9",
+          "simlingo_training/lidar/engine.py": "4d7d5c01697b485d8430dc4d2fadf91ee890f2997d308e0100cdf9644fb64f5d",
+          "simlingo_training/lidar/evaluation.py": "cfe6cb9977b1f63ff529b14142d536d0906df259cd9bfd096edd391d28ac62f1",
+          "simlingo_training/lidar/model.py": "5c49ac490f2b9ad3b6918fe1701276e8fef99a0050c63a0e25703376cc7d566c",
+          "simlingo_training/lidar/numerics.py": "6424673a4df3971d9c22ab8750541583c9eab6be83eae2edab8eb6de958e1439",
+          "simlingo_training/lidar/perception.py": "96e581be607546cb170d8c2af0ec69046bf29ad32c030ebf8a66eea2939bc650",
+          "simlingo_training/lidar/runtime.py": "7c9cc3007a2c758cbfd4bccc4b9a22b7ecebc3eccd2421879b1440da0ddb6d5d",
+          "simlingo_training/lidar/sparse_kernels.py": "286b35bb853f0a3516f1695ca3abcc1d62ad653bb5c41f2ebe8f2bc0f47e14f4",
+          "simlingo_training/lidar/storage.py": "4adf2b5e361568aac02518396f77c661485d594b8662ae6923c3a8cc8f193acf",
+          "simlingo_training/lidar/train.py": "81755e8987a944b39e320ff95619fae83d96e3c0401a25d2869538b1d1554ea8",
+          "simlingo_training/lidar/validation.py": "6eb212e6e23597a98baf537671092817266779ec24df19ad7ab01f9f04eae9a7",
+          "simlingo_training/lidar/validation_run.py": "98f5b46687e62ee46c9e464c66ebfff64332d83af1afb4621c27edc8083c0751",
+          "simlingo_training/models/adaptors/adaptors.py": "217b02552802c6827ed98d8c7277fee592277cd276b93a348c9dc55a1cede0d2",
+          "simlingo_training/models/driving.py": "a3f6be0fecd5edeab3eef9f9f5c01cd48b044904d60bcd710adce173b7ce56b2",
+          "simlingo_training/models/encoder/internvl2_model.py": "73af1ee30d0fbe742e6f3206ec5ee62e1c175aced423bfbca15bfa031e2408a4",
+          "simlingo_training/models/encoder/vlm.py": "7c6c3ec10ddcb07cd61662c610fe8823678b9c8ab7af2192e09bfe39c4f533ca",
+          "simlingo_training/models/language_model/llm.py": "e9cd52119cd35d7672563eeb89260990fa788185fdfe3df4222a899b619d1bbe",
+          "simlingo_training/models/utils.py": "de7177e5a4ada4c244f3e658b98339702493cf0a6a6aeb3ead828a7d66b25785",
+          "simlingo_training/train.py": "ad3ef397b0491e6938cb652d76413ec63f30e9881ebf3de5dc27fc0a28ed7133",
+          "simlingo_training/utils/custom_types.py": "a10aed45dcfae48fe5daa946c4dd9920b60ceac306c416bdd3b75f7ba358d660",
+          "simlingo_training/utils/gpt_eval.py": "8ec7375bc81e61a4d4f85c50203b675e030fba214556168e02562091ad88b8cd",
+          "simlingo_training/utils/internvl2_utils.py": "897fd3c37c9e324b6be2738764220b61f6aed741e547132d57c6a7644fb9d1c0",
+          "simlingo_training/utils/kinematic_bicycle_model.py": "98a76340c3b9d9b24cabe5f773ffeeb44a559daaf9c083627bf16699ec2c6772",
+          "simlingo_training/utils/logging_project.py": "20365f508cad7f53beb006f762623888fe8c28f7dd6d6c006cfc7b2217298496",
+          "simlingo_training/utils/projection.py": "ddd8e1a43217f796022d037c723b6238ca3d0730b44dfc83a65ae2ef8920966a",
+          "simlingo_training/utils/transfuser_utils.py": "ec949203a64ddad797f3165bc246ad939f5eb3a434af480ecd75156f7fe9e567"
+        },
+        "experiment_config": {
+          "accumulation": 64,
+          "cache": false,
+          "microbatch": 1,
+          "numerics": {
+            "cublas_workspace": ":4096:8",
+            "cudnn_benchmark": false,
+            "flash_backward_deterministic": true,
+            "schema": 2,
+            "sparse_kernel_checkpointing": "Python dispatch; FP32; split-K=1; checkpoint tuner tables; prime before update zero",
+            "tf32": false,
+            "torch_deterministic": true,
+            "vision_position_grid": "Native grid identity; reject unreviewed resize",
+            "waypoint_accumulation": "FP32 triangular scan"
+          },
+          "run": {
+            "entrypoint_sha256": "e408447d217c6380741f1dc092795edf5e22cc1f6f51f57ad52acdc981445364",
+            "purpose": "Disposable fresh-process readiness check"
+          },
+          "total_updates": 750
+        },
+        "external_sources": {
+          "loaded_vision_module": "1978e330ea5533dda4d1379096aded271fc741347fc48cb4924846b56a2a6a4b",
+          "snapshot/added_tokens.json": "baea1c1e8f24ce785f49112072664b8be778e9242a1a21cf6f7c6cb92add6d10",
+          "snapshot/config.json": "2e85a81acfc8cbea3dc3cee831e6c4b171d456f30938aef14cf37d5eb2ac00ed",
+          "snapshot/configuration_intern_vit.py": "22dd687a5f142985407675fc6b1dc688c2ded93e54192543ecf28ef495a6efa8",
+          "snapshot/configuration_internvl_chat.py": "6524e6deae6c318543d1022a599f011120f5a970eaa25f1118e7f5d0e346710c",
+          "snapshot/conversation.py": "b1b9f280e9cb9211e519e2b8071002b57cc742aadb2f49b05fa674ee3c7d83ee",
+          "snapshot/generation_config.json": "2decd6209b7280fbf8ddba60a24047ce26cbd6ac539bca8ec145d21aeaaf4498",
+          "snapshot/merges.txt": "455e0caaa06abffc663e9282dfe71dde07fd1991eaf24146bf08793c4dba4497",
+          "snapshot/modeling_intern_vit.py": "1978e330ea5533dda4d1379096aded271fc741347fc48cb4924846b56a2a6a4b",
+          "snapshot/modeling_internvl_chat.py": "5d8f26ccfeb8434c0bcc295050725add4b2f2b0ffb4d1ab550c877a648386597",
+          "snapshot/preprocessor_config.json": "0658115064c561026539aeeead9ed3b1a8e0cc90967df8c142849199f955d2b4",
+          "snapshot/special_tokens_map.json": "af3c7a7e8e3396571d8640b822cd611de2b51b15cf65a5dc1054ffea31483427",
+          "snapshot/tokenizer_config.json": "2ed7120320ff66f65e1dccc704f318eeccab8941292424dfdf8290dd1b689634",
+          "snapshot/vocab.json": "87a257b04b17642a0688c98cd1df89c398bda4fee532d6f88b38a659ecb4ac8d",
+          "utonia/__init__.py": "22638c884da43277f461e0bbd8ee30f462b5a114288bda3fc48eaaa45b580bab",
+          "utonia/data.py": "6b0a0f73ef8614b855d2ebfd847feb501a172df67e04f3308a2b55986ea87fe3",
+          "utonia/model.py": "fa7fcc9d1e57ce7657f3942d4e06484d040b0c86b0b71cabe9d4be516244e9ad",
+          "utonia/module.py": "bb9f455509b233eac2b798df0d8efeefa64124628f493ec15dfa92aecabf3cff",
+          "utonia/registry.py": "4da4d76fc60eec722ef268077cf0f77ddb6f61fe63e0162bf24db8363ca1feec",
+          "utonia/serialization/__init__.py": "e6461b37ccb5dcb24725943271259c4f74dac89d27b22becb97e48ce04c8a9b1",
+          "utonia/serialization/default.py": "27a5b667b969256f37f9457e432fd0f7f396974ba26ef395719cfcdb6e0fef31",
+          "utonia/serialization/hilbert.py": "4fe3d815f6e8eb67fcf2168b616646837ae0f8fec8b0608e2adfbda4497adee4",
+          "utonia/serialization/z_order.py": "a6cfc1db67eda5c653033664df84a789ca639df1a1f4836b20c09ae006fc2379",
+          "utonia/structure.py": "61e696a46833292d7816d30a7f633d2728dceb5a037e0fb0bb7191a9111f6812",
+          "utonia/transform.py": "50c228fc1b1209edc9cfeb84cec288e7f0796a58bc4645ac260e3082515acb12",
+          "utonia/utils.py": "373fb39316bc12f55c002d77ce6b4e1a48b049f47c1baac82f61ada20327be59"
+        },
+        "generation_cache": false,
+        "hf_snapshot_revision": "0d75ccd166b1d0b79446ae6c5d1a4a667f1e6187",
+        "loss_weights": {
+          "distance": 0.2,
+          "language": 1.0,
+          "presence": 0.2,
+          "route": 1.0,
+          "speed": 1.0
+        },
+        "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+        "maximum_lrs": {
+          "connector": 0.0002
+        },
+        "optimizer": {
+          "beta2": 0.999,
+          "clip_norm": 0.3,
+          "eps": 1e-08,
+          "type": "AdamW",
+          "weight_decay": 0.1
+        },
+        "preprocess": "ego-xyz-scale0.2-voxel0.01-first-v1",
+        "released_config_sha256": "d56a7c1ebf3b6fd7ff6edff87071f1b2fe7269563e3ea626379994bef7807417",
+        "released_sha256": "ec8943723d266ee9f5f56f45d153a163b22616960bfccb741965ea5daa700d28",
+        "scheduler": {
+          "beta1": [
+            0.95,
+            0.85,
+            0.95
+          ],
+          "div_factor": 25,
+          "final_div_factor": 10000,
+          "type": "OneCycleLR",
+          "warmup_fraction": 0.05
+        },
+        "schema": 1,
+        "stage": "align",
+        "task_counts": [
+          24,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "utonia_sha256": "a0a2e5e234ce943082ae9ba26bcff74e285f16ed8d04fed5c36ffe8dc30ea353",
+        "validation_sha256": "f523c2d9029b8d4b673d54bfea6d3c87248a1a5d842520d0a89b4ff82cc41064",
+        "versions": {
+          "Pillow": "10.2.0",
+          "cuda": "12.4",
+          "cudnn": 90100,
+          "flash-attn": "2.7.0.post2",
+          "imgaug": "0.4.0",
+          "laspy": "2.5.3",
+          "lazrs": "0.5.3",
+          "numpy": "1.26.4",
+          "omegaconf": "2.3.1",
+          "opencv": "4.10.0",
+          "peft": "0.13.2",
+          "python": "3.10.20",
+          "scipy": "1.14.1",
+          "spconv-cu124": "2.3.8",
+          "tokenizers": "0.20.3",
+          "torch": "2.5.0+cu124",
+          "transformers": "4.46.3"
+        }
+      },
+      "model": {
+        "bitwise": true,
+        "mismatches": [],
+        "tensors": 1530
+      },
+      "optimizer": {
+        "bitwise": true,
+        "mismatches": [],
+        "tensors": 183
+      },
+      "passed": true,
+      "peak_reserved_bytes": 10695475200,
+      "reference_initial_update": {
+        "requests": [
+          {
+            "index": 33971,
+            "position": 0,
+            "replay": false,
+            "seed": 1073266673,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 73664,
+            "position": 1,
+            "replay": false,
+            "seed": 730038600,
+            "task": "dreamer"
+          },
+          {
+            "index": 50383,
+            "position": 2,
+            "replay": false,
+            "seed": 1620631269,
+            "task": "dreamer"
+          },
+          {
+            "index": 21185,
+            "position": 3,
+            "replay": false,
+            "seed": 1431125787,
+            "task": "commentary"
+          },
+          {
+            "index": 34418,
+            "position": 4,
+            "replay": false,
+            "seed": 3517568222,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 29116,
+            "position": 5,
+            "replay": false,
+            "seed": 1539875911,
+            "task": "qa"
+          },
+          {
+            "index": 6855,
+            "position": 6,
+            "replay": false,
+            "seed": 24567689,
+            "task": "dreamer"
+          },
+          {
+            "index": 33597,
+            "position": 7,
+            "replay": false,
+            "seed": 3876429880,
+            "task": "driving"
+          },
+          {
+            "index": 10553,
+            "position": 8,
+            "replay": false,
+            "seed": 3818960836,
+            "task": "driving"
+          },
+          {
+            "index": 18998,
+            "position": 9,
+            "replay": false,
+            "seed": 827030403,
+            "task": "dreamer"
+          },
+          {
+            "index": 72798,
+            "position": 10,
+            "replay": false,
+            "seed": 3663026140,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 54240,
+            "position": 11,
+            "replay": false,
+            "seed": 478806510,
+            "task": "dreamer"
+          },
+          {
+            "index": 25221,
+            "position": 12,
+            "replay": false,
+            "seed": 1004351301,
+            "task": "driving"
+          },
+          {
+            "index": 19596,
+            "position": 13,
+            "replay": false,
+            "seed": 3702617342,
+            "task": "qa"
+          },
+          {
+            "index": 60356,
+            "position": 14,
+            "replay": false,
+            "seed": 366856744,
+            "task": "driving"
+          },
+          {
+            "index": 69578,
+            "position": 15,
+            "replay": false,
+            "seed": 2937227085,
+            "task": "rear_driving"
+          },
+          {
+            "index": 36564,
+            "position": 16,
+            "replay": false,
+            "seed": 2068841559,
+            "task": "rear_driving"
+          },
+          {
+            "index": 20777,
+            "position": 17,
+            "replay": false,
+            "seed": 2006375287,
+            "task": "commentary"
+          },
+          {
+            "index": 3798,
+            "position": 18,
+            "replay": false,
+            "seed": 4081093550,
+            "task": "commentary"
+          },
+          {
+            "index": 6401,
+            "position": 19,
+            "replay": false,
+            "seed": 287346578,
+            "task": "dreamer"
+          },
+          {
+            "index": 71165,
+            "position": 20,
+            "replay": false,
+            "seed": 1602312278,
+            "task": "rear_driving"
+          },
+          {
+            "index": 51945,
+            "position": 21,
+            "replay": false,
+            "seed": 3077060889,
+            "task": "rear_driving"
+          },
+          {
+            "index": 11163,
+            "position": 22,
+            "replay": false,
+            "seed": 2348467950,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 26712,
+            "position": 23,
+            "replay": false,
+            "seed": 527383455,
+            "task": "rear_driving"
+          },
+          {
+            "index": 47972,
+            "position": 24,
+            "replay": false,
+            "seed": 2632760565,
+            "task": "commentary"
+          },
+          {
+            "index": 7153,
+            "position": 25,
+            "replay": false,
+            "seed": 3429997895,
+            "task": "qa"
+          },
+          {
+            "index": 13022,
+            "position": 26,
+            "replay": false,
+            "seed": 2503936113,
+            "task": "rear_driving"
+          },
+          {
+            "index": 13809,
+            "position": 27,
+            "replay": false,
+            "seed": 1139388142,
+            "task": "dreamer"
+          },
+          {
+            "index": 12904,
+            "position": 28,
+            "replay": false,
+            "seed": 194695845,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 56801,
+            "position": 29,
+            "replay": false,
+            "seed": 757840950,
+            "task": "driving"
+          },
+          {
+            "index": 14613,
+            "position": 30,
+            "replay": false,
+            "seed": 2421967319,
+            "task": "rear_driving"
+          },
+          {
+            "index": 28139,
+            "position": 31,
+            "replay": false,
+            "seed": 3957896857,
+            "task": "dreamer"
+          },
+          {
+            "index": 2509,
+            "position": 32,
+            "replay": false,
+            "seed": 3513809040,
+            "task": "dreamer"
+          },
+          {
+            "index": 65520,
+            "position": 33,
+            "replay": false,
+            "seed": 3846362441,
+            "task": "dreamer"
+          },
+          {
+            "index": 16588,
+            "position": 34,
+            "replay": false,
+            "seed": 889566028,
+            "task": "driving"
+          },
+          {
+            "index": 61341,
+            "position": 35,
+            "replay": false,
+            "seed": 725015859,
+            "task": "qa"
+          },
+          {
+            "index": 68747,
+            "position": 36,
+            "replay": false,
+            "seed": 2786847582,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 70583,
+            "position": 37,
+            "replay": false,
+            "seed": 1779673603,
+            "task": "commentary"
+          },
+          {
+            "index": 46660,
+            "position": 38,
+            "replay": false,
+            "seed": 3539870250,
+            "task": "commentary"
+          },
+          {
+            "index": 61224,
+            "position": 39,
+            "replay": false,
+            "seed": 2886465811,
+            "task": "qa"
+          },
+          {
+            "index": 41216,
+            "position": 40,
+            "replay": false,
+            "seed": 2304893548,
+            "task": "dreamer"
+          },
+          {
+            "index": 10135,
+            "position": 41,
+            "replay": false,
+            "seed": 1601881985,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 72698,
+            "position": 42,
+            "replay": false,
+            "seed": 2416941275,
+            "task": "commentary"
+          },
+          {
+            "index": 64527,
+            "position": 43,
+            "replay": false,
+            "seed": 3083947441,
+            "task": "qa"
+          },
+          {
+            "index": 48195,
+            "position": 44,
+            "replay": false,
+            "seed": 2210394353,
+            "task": "dreamer"
+          },
+          {
+            "index": 40589,
+            "position": 45,
+            "replay": false,
+            "seed": 298809389,
+            "task": "driving"
+          },
+          {
+            "index": 29024,
+            "position": 46,
+            "replay": false,
+            "seed": 2644260277,
+            "task": "dreamer"
+          },
+          {
+            "index": 4046,
+            "position": 47,
+            "replay": false,
+            "seed": 4055547150,
+            "task": "rear_driving"
+          },
+          {
+            "index": 16174,
+            "position": 48,
+            "replay": false,
+            "seed": 3703168041,
+            "task": "dreamer"
+          },
+          {
+            "index": 22647,
+            "position": 49,
+            "replay": false,
+            "seed": 2513701877,
+            "task": "commentary"
+          },
+          {
+            "index": 72746,
+            "position": 50,
+            "replay": false,
+            "seed": 4135411126,
+            "task": "dreamer"
+          },
+          {
+            "index": 20602,
+            "position": 51,
+            "replay": false,
+            "seed": 4202389802,
+            "task": "qa"
+          },
+          {
+            "index": 15737,
+            "position": 52,
+            "replay": false,
+            "seed": 987130873,
+            "task": "dreamer"
+          },
+          {
+            "index": 73034,
+            "position": 53,
+            "replay": false,
+            "seed": 2959068454,
+            "task": "dreamer"
+          },
+          {
+            "index": 35523,
+            "position": 54,
+            "replay": false,
+            "seed": 1424950980,
+            "task": "dreamer"
+          },
+          {
+            "index": 32761,
+            "position": 55,
+            "replay": false,
+            "seed": 993506144,
+            "task": "qa"
+          },
+          {
+            "index": 58191,
+            "position": 56,
+            "replay": false,
+            "seed": 494056954,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 3136,
+            "position": 57,
+            "replay": false,
+            "seed": 173707446,
+            "task": "driving"
+          },
+          {
+            "index": 2086,
+            "position": 58,
+            "replay": false,
+            "seed": 2090073553,
+            "task": "dreamer"
+          },
+          {
+            "index": 26653,
+            "position": 59,
+            "replay": false,
+            "seed": 2265258464,
+            "task": "dreamer"
+          },
+          {
+            "index": 6623,
+            "position": 60,
+            "replay": false,
+            "seed": 3896235808,
+            "task": "dreamer"
+          },
+          {
+            "index": 48631,
+            "position": 61,
+            "replay": false,
+            "seed": 1251374250,
+            "task": "dreamer"
+          },
+          {
+            "index": 59245,
+            "position": 62,
+            "replay": false,
+            "seed": 379906356,
+            "task": "dreamer"
+          },
+          {
+            "index": 33416,
+            "position": 63,
+            "replay": false,
+            "seed": 924419016,
+            "task": "dreamer"
+          }
+        ],
+        "seconds": 121.02273969400267,
+        "stats": {
+          "components": {
+            "distance": 1.6006696902472397,
+            "language": 0.8682024892523059,
+            "presence": 0.6897077488899231,
+            "route": 0.11370698950286169,
+            "speed": 0.36027421335626664
+          },
+          "counts": {
+            "distance": 116,
+            "language": 817,
+            "presence": 250,
+            "route": 960,
+            "speed": 480
+          },
+          "gradient_norm": 19.20789337158203,
+          "loss": 1.8002591799388667
+        }
+      },
+      "reference_next_update_seconds": 116.92707316700398,
+      "reference_pid": 103391,
+      "reference_seconds": 269.1057223710013,
+      "resume_pid": 103389,
+      "resume_seconds": 160.39364082699467,
+      "resume_update_seconds": 130.10147117399902,
+      "save_seconds": 19.275767195998924,
+      "scope": "Separate interpreter/model/optimizer/data construction. Same physical server; simulates restart without rebooting the shared server.",
+      "stage": "align",
+      "temporary_weights_selected": false,
+      "unique_window_replay_count": 0,
+      "unique_window_task_counts": {
+        "commentary": 16,
+        "dreamer": 48,
+        "driving": 16,
+        "geometry_qa": 16,
+        "qa": 16,
+        "rear_driving": 16
+      }
+    },
+    "joint": {
+      "accumulation": 64,
+      "boundary_bytes": 8154364422,
+      "checks": {
+        "completed_boundary": true,
+        "cuda_rng": true,
+        "generated_tokens": true,
+        "loss_stats": true,
+        "model": true,
+        "numpy_rng": true,
+        "optimizer": true,
+        "optimizer_groups": true,
+        "python_rng": true,
+        "requests": true,
+        "sampler": true,
+        "samples": true,
+        "scheduler": true,
+        "torch_rng": true
+      },
+      "generation_cap": 100,
+      "load_seconds": 18.27105680499517,
+      "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+      "metadata": {
+        "code": {
+          "simlingo_training/callbacks/__init__.py": "e305baefb8d88c9811189a63f6be96955241e7992d992e393fcdfb3fb51955b4",
+          "simlingo_training/callbacks/visualise.py": "7863522631ee22ea6ef906280f38bc724dc7b3057a43f0afb1f107dab83b8d19",
+          "simlingo_training/config.py": "d243213e795b8b3198516ed280229469f25fb472e1edc208924dd8997ad5843e",
+          "simlingo_training/dataloader/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "simlingo_training/dataloader/datamodule.py": "b759f0140f1175c90cb795bc316b3a2ec7fa8aeae7fed53c2a3fd0db6be1792e",
+          "simlingo_training/dataloader/dataset_base.py": "9b4ec2aadf35330791460a33cbe0658515feeb6ad84092fa8507530ab8259a89",
+          "simlingo_training/dataloader/dataset_dreamer.py": "ec41ac3515164f86d05998741ddc6593480ca2f5c6f58df85ac5cb45f80f0c1e",
+          "simlingo_training/dataloader/dataset_driving.py": "abf871d894b4ef77fdec725da6209e42b3b6168742ea8de9566d2db06c6adb0c",
+          "simlingo_training/dataloader/dataset_eval_dreamer.py": "a0738ff28c2aedb53242753e8035bfa4b2ab1cc093b7e01672d2b6738dcaafc9",
+          "simlingo_training/dataloader/dataset_eval_qa_comm.py": "5f23d557f9cc897d61365e7a8e69394ee9af4c08b8e4811764622ae75cebe702",
+          "simlingo_training/eval.py": "555cd39ebddc7d31b78ff47453c494275e96e759e90681714065fc428c847437",
+          "simlingo_training/eval_metrics.py": "d5c9e22d7b6505f7a0b9e6523c4b2d889b4ae52ac4c985ed25150b264d69fc54",
+          "simlingo_training/lidar/__init__.py": "5498f69a2ff9fc7e78bb10b7fc64843d01edb5a14a3be1a84b35742138d289af",
+          "simlingo_training/lidar/data.py": "a7046442727437551bc97c493167b69cabac34a2d330e242e4c9208f369a2bf9",
+          "simlingo_training/lidar/engine.py": "4d7d5c01697b485d8430dc4d2fadf91ee890f2997d308e0100cdf9644fb64f5d",
+          "simlingo_training/lidar/evaluation.py": "cfe6cb9977b1f63ff529b14142d536d0906df259cd9bfd096edd391d28ac62f1",
+          "simlingo_training/lidar/model.py": "5c49ac490f2b9ad3b6918fe1701276e8fef99a0050c63a0e25703376cc7d566c",
+          "simlingo_training/lidar/numerics.py": "6424673a4df3971d9c22ab8750541583c9eab6be83eae2edab8eb6de958e1439",
+          "simlingo_training/lidar/perception.py": "96e581be607546cb170d8c2af0ec69046bf29ad32c030ebf8a66eea2939bc650",
+          "simlingo_training/lidar/runtime.py": "7c9cc3007a2c758cbfd4bccc4b9a22b7ecebc3eccd2421879b1440da0ddb6d5d",
+          "simlingo_training/lidar/sparse_kernels.py": "286b35bb853f0a3516f1695ca3abcc1d62ad653bb5c41f2ebe8f2bc0f47e14f4",
+          "simlingo_training/lidar/storage.py": "4adf2b5e361568aac02518396f77c661485d594b8662ae6923c3a8cc8f193acf",
+          "simlingo_training/lidar/train.py": "81755e8987a944b39e320ff95619fae83d96e3c0401a25d2869538b1d1554ea8",
+          "simlingo_training/lidar/validation.py": "6eb212e6e23597a98baf537671092817266779ec24df19ad7ab01f9f04eae9a7",
+          "simlingo_training/lidar/validation_run.py": "98f5b46687e62ee46c9e464c66ebfff64332d83af1afb4621c27edc8083c0751",
+          "simlingo_training/models/adaptors/adaptors.py": "217b02552802c6827ed98d8c7277fee592277cd276b93a348c9dc55a1cede0d2",
+          "simlingo_training/models/driving.py": "a3f6be0fecd5edeab3eef9f9f5c01cd48b044904d60bcd710adce173b7ce56b2",
+          "simlingo_training/models/encoder/internvl2_model.py": "73af1ee30d0fbe742e6f3206ec5ee62e1c175aced423bfbca15bfa031e2408a4",
+          "simlingo_training/models/encoder/vlm.py": "7c6c3ec10ddcb07cd61662c610fe8823678b9c8ab7af2192e09bfe39c4f533ca",
+          "simlingo_training/models/language_model/llm.py": "e9cd52119cd35d7672563eeb89260990fa788185fdfe3df4222a899b619d1bbe",
+          "simlingo_training/models/utils.py": "de7177e5a4ada4c244f3e658b98339702493cf0a6a6aeb3ead828a7d66b25785",
+          "simlingo_training/train.py": "ad3ef397b0491e6938cb652d76413ec63f30e9881ebf3de5dc27fc0a28ed7133",
+          "simlingo_training/utils/custom_types.py": "a10aed45dcfae48fe5daa946c4dd9920b60ceac306c416bdd3b75f7ba358d660",
+          "simlingo_training/utils/gpt_eval.py": "8ec7375bc81e61a4d4f85c50203b675e030fba214556168e02562091ad88b8cd",
+          "simlingo_training/utils/internvl2_utils.py": "897fd3c37c9e324b6be2738764220b61f6aed741e547132d57c6a7644fb9d1c0",
+          "simlingo_training/utils/kinematic_bicycle_model.py": "98a76340c3b9d9b24cabe5f773ffeeb44a559daaf9c083627bf16699ec2c6772",
+          "simlingo_training/utils/logging_project.py": "20365f508cad7f53beb006f762623888fe8c28f7dd6d6c006cfc7b2217298496",
+          "simlingo_training/utils/projection.py": "ddd8e1a43217f796022d037c723b6238ca3d0730b44dfc83a65ae2ef8920966a",
+          "simlingo_training/utils/transfuser_utils.py": "ec949203a64ddad797f3165bc246ad939f5eb3a434af480ecd75156f7fe9e567"
+        },
+        "experiment_config": {
+          "accumulation": 64,
+          "cache": false,
+          "microbatch": 1,
+          "numerics": {
+            "cublas_workspace": ":4096:8",
+            "cudnn_benchmark": false,
+            "flash_backward_deterministic": true,
+            "schema": 2,
+            "sparse_kernel_checkpointing": "Python dispatch; FP32; split-K=1; checkpoint tuner tables; prime before update zero",
+            "tf32": false,
+            "torch_deterministic": true,
+            "vision_position_grid": "Native grid identity; reject unreviewed resize",
+            "waypoint_accumulation": "FP32 triangular scan"
+          },
+          "run": {
+            "entrypoint_sha256": "e408447d217c6380741f1dc092795edf5e22cc1f6f51f57ad52acdc981445364",
+            "initial_weights_sha256": "74c0f9559a1f102a3eb017f2489c25f2cd0fddd8ef40abe44d3fdb224514cdcc",
+            "purpose": "Disposable fresh-process readiness check"
+          },
+          "total_updates": 1161
+        },
+        "external_sources": {
+          "loaded_vision_module": "1978e330ea5533dda4d1379096aded271fc741347fc48cb4924846b56a2a6a4b",
+          "snapshot/added_tokens.json": "baea1c1e8f24ce785f49112072664b8be778e9242a1a21cf6f7c6cb92add6d10",
+          "snapshot/config.json": "2e85a81acfc8cbea3dc3cee831e6c4b171d456f30938aef14cf37d5eb2ac00ed",
+          "snapshot/configuration_intern_vit.py": "22dd687a5f142985407675fc6b1dc688c2ded93e54192543ecf28ef495a6efa8",
+          "snapshot/configuration_internvl_chat.py": "6524e6deae6c318543d1022a599f011120f5a970eaa25f1118e7f5d0e346710c",
+          "snapshot/conversation.py": "b1b9f280e9cb9211e519e2b8071002b57cc742aadb2f49b05fa674ee3c7d83ee",
+          "snapshot/generation_config.json": "2decd6209b7280fbf8ddba60a24047ce26cbd6ac539bca8ec145d21aeaaf4498",
+          "snapshot/merges.txt": "455e0caaa06abffc663e9282dfe71dde07fd1991eaf24146bf08793c4dba4497",
+          "snapshot/modeling_intern_vit.py": "1978e330ea5533dda4d1379096aded271fc741347fc48cb4924846b56a2a6a4b",
+          "snapshot/modeling_internvl_chat.py": "5d8f26ccfeb8434c0bcc295050725add4b2f2b0ffb4d1ab550c877a648386597",
+          "snapshot/preprocessor_config.json": "0658115064c561026539aeeead9ed3b1a8e0cc90967df8c142849199f955d2b4",
+          "snapshot/special_tokens_map.json": "af3c7a7e8e3396571d8640b822cd611de2b51b15cf65a5dc1054ffea31483427",
+          "snapshot/tokenizer_config.json": "2ed7120320ff66f65e1dccc704f318eeccab8941292424dfdf8290dd1b689634",
+          "snapshot/vocab.json": "87a257b04b17642a0688c98cd1df89c398bda4fee532d6f88b38a659ecb4ac8d",
+          "utonia/__init__.py": "22638c884da43277f461e0bbd8ee30f462b5a114288bda3fc48eaaa45b580bab",
+          "utonia/data.py": "6b0a0f73ef8614b855d2ebfd847feb501a172df67e04f3308a2b55986ea87fe3",
+          "utonia/model.py": "fa7fcc9d1e57ce7657f3942d4e06484d040b0c86b0b71cabe9d4be516244e9ad",
+          "utonia/module.py": "bb9f455509b233eac2b798df0d8efeefa64124628f493ec15dfa92aecabf3cff",
+          "utonia/registry.py": "4da4d76fc60eec722ef268077cf0f77ddb6f61fe63e0162bf24db8363ca1feec",
+          "utonia/serialization/__init__.py": "e6461b37ccb5dcb24725943271259c4f74dac89d27b22becb97e48ce04c8a9b1",
+          "utonia/serialization/default.py": "27a5b667b969256f37f9457e432fd0f7f396974ba26ef395719cfcdb6e0fef31",
+          "utonia/serialization/hilbert.py": "4fe3d815f6e8eb67fcf2168b616646837ae0f8fec8b0608e2adfbda4497adee4",
+          "utonia/serialization/z_order.py": "a6cfc1db67eda5c653033664df84a789ca639df1a1f4836b20c09ae006fc2379",
+          "utonia/structure.py": "61e696a46833292d7816d30a7f633d2728dceb5a037e0fb0bb7191a9111f6812",
+          "utonia/transform.py": "50c228fc1b1209edc9cfeb84cec288e7f0796a58bc4645ac260e3082515acb12",
+          "utonia/utils.py": "373fb39316bc12f55c002d77ce6b4e1a48b049f47c1baac82f61ada20327be59"
+        },
+        "generation_cache": false,
+        "hf_snapshot_revision": "0d75ccd166b1d0b79446ae6c5d1a4a667f1e6187",
+        "loss_weights": {
+          "distance": 0.2,
+          "language": 1.0,
+          "presence": 0.2,
+          "route": 1.0,
+          "speed": 1.0
+        },
+        "manifest_sha256": "cf93046308b9e2e2bfb98a350b1b886d286881f5d63f8e354cb463647625a2e3",
+        "maximum_lrs": {
+          "connector": 0.0001,
+          "driving": 1e-05,
+          "lidar": 1e-05,
+          "lora": 1e-05,
+          "navigation": 1e-05,
+          "rgb": 1e-06
+        },
+        "optimizer": {
+          "beta2": 0.999,
+          "clip_norm": 0.3,
+          "eps": 1e-08,
+          "type": "AdamW",
+          "weight_decay": 0.1
+        },
+        "preprocess": "ego-xyz-scale0.2-voxel0.01-first-v1",
+        "released_config_sha256": "d56a7c1ebf3b6fd7ff6edff87071f1b2fe7269563e3ea626379994bef7807417",
+        "released_sha256": "ec8943723d266ee9f5f56f45d153a163b22616960bfccb741965ea5daa700d28",
+        "scheduler": {
+          "beta1": [
+            0.95,
+            0.85,
+            0.95
+          ],
+          "div_factor": 25,
+          "final_div_factor": 10000,
+          "type": "OneCycleLR",
+          "warmup_fraction": 0.05
+        },
+        "schema": 1,
+        "stage": "joint",
+        "task_counts": [
+          384,
+          128,
+          128,
+          128,
+          96,
+          96
+        ],
+        "utonia_sha256": "a0a2e5e234ce943082ae9ba26bcff74e285f16ed8d04fed5c36ffe8dc30ea353",
+        "validation_sha256": "f523c2d9029b8d4b673d54bfea6d3c87248a1a5d842520d0a89b4ff82cc41064",
+        "versions": {
+          "Pillow": "10.2.0",
+          "cuda": "12.4",
+          "cudnn": 90100,
+          "flash-attn": "2.7.0.post2",
+          "imgaug": "0.4.0",
+          "laspy": "2.5.3",
+          "lazrs": "0.5.3",
+          "numpy": "1.26.4",
+          "omegaconf": "2.3.1",
+          "opencv": "4.10.0",
+          "peft": "0.13.2",
+          "python": "3.10.20",
+          "scipy": "1.14.1",
+          "spconv-cu124": "2.3.8",
+          "tokenizers": "0.20.3",
+          "torch": "2.5.0+cu124",
+          "transformers": "4.46.3"
+        }
+      },
+      "model": {
+        "bitwise": true,
+        "mismatches": [],
+        "tensors": 1530
+      },
+      "optimizer": {
+        "bitwise": true,
+        "mismatches": [],
+        "tensors": 3111
+      },
+      "passed": true,
+      "peak_reserved_bytes": 33011269632,
+      "reference_initial_update": {
+        "requests": [
+          {
+            "index": 33971,
+            "position": 0,
+            "replay": false,
+            "seed": 1073266673,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 73664,
+            "position": 1,
+            "replay": false,
+            "seed": 730038600,
+            "task": "dreamer"
+          },
+          {
+            "index": 30994,
+            "position": 2,
+            "replay": false,
+            "seed": 1620631269,
+            "task": "driving"
+          },
+          {
+            "index": 47954,
+            "position": 3,
+            "replay": false,
+            "seed": 1431125787,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 61030,
+            "position": 4,
+            "replay": false,
+            "seed": 3517568222,
+            "task": "commentary"
+          },
+          {
+            "index": 29116,
+            "position": 5,
+            "replay": false,
+            "seed": 1539875911,
+            "task": "driving"
+          },
+          {
+            "index": 59714,
+            "position": 6,
+            "replay": false,
+            "seed": 24567689,
+            "task": "commentary"
+          },
+          {
+            "index": 36120,
+            "position": 7,
+            "replay": false,
+            "seed": 3876429880,
+            "task": "commentary"
+          },
+          {
+            "index": 57789,
+            "position": 8,
+            "replay": false,
+            "seed": 3818960836,
+            "task": "rear_driving"
+          },
+          {
+            "index": 18998,
+            "position": 9,
+            "replay": false,
+            "seed": 827030403,
+            "task": "dreamer"
+          },
+          {
+            "index": 38079,
+            "position": 10,
+            "replay": false,
+            "seed": 3663026140,
+            "task": "commentary"
+          },
+          {
+            "index": 54240,
+            "position": 11,
+            "replay": false,
+            "seed": 478806510,
+            "task": "dreamer"
+          },
+          {
+            "index": 25221,
+            "position": 12,
+            "replay": true,
+            "seed": 1004351301,
+            "task": "qa"
+          },
+          {
+            "index": 20286,
+            "position": 13,
+            "replay": false,
+            "seed": 3702617342,
+            "task": "dreamer"
+          },
+          {
+            "index": 60356,
+            "position": 14,
+            "replay": true,
+            "seed": 366856744,
+            "task": "qa"
+          },
+          {
+            "index": 69427,
+            "position": 15,
+            "replay": false,
+            "seed": 2937227085,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 22040,
+            "position": 16,
+            "replay": false,
+            "seed": 2068841559,
+            "task": "qa"
+          },
+          {
+            "index": 38176,
+            "position": 17,
+            "replay": false,
+            "seed": 2006375287,
+            "task": "rear_driving"
+          },
+          {
+            "index": 7122,
+            "position": 18,
+            "replay": false,
+            "seed": 4081093550,
+            "task": "dreamer"
+          },
+          {
+            "index": 8871,
+            "position": 19,
+            "replay": false,
+            "seed": 287346578,
+            "task": "driving"
+          },
+          {
+            "index": 71059,
+            "position": 20,
+            "replay": false,
+            "seed": 1602312278,
+            "task": "dreamer"
+          },
+          {
+            "index": 13116,
+            "position": 21,
+            "replay": false,
+            "seed": 3077060889,
+            "task": "commentary"
+          },
+          {
+            "index": 40920,
+            "position": 22,
+            "replay": false,
+            "seed": 2348467950,
+            "task": "commentary"
+          },
+          {
+            "index": 57935,
+            "position": 23,
+            "replay": false,
+            "seed": 527383455,
+            "task": "qa"
+          },
+          {
+            "index": 47972,
+            "position": 24,
+            "replay": false,
+            "seed": 2632760565,
+            "task": "commentary"
+          },
+          {
+            "index": 44378,
+            "position": 25,
+            "replay": false,
+            "seed": 3429997895,
+            "task": "dreamer"
+          },
+          {
+            "index": 41753,
+            "position": 26,
+            "replay": false,
+            "seed": 2503936113,
+            "task": "driving"
+          },
+          {
+            "index": 13812,
+            "position": 27,
+            "replay": false,
+            "seed": 1139388142,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 12902,
+            "position": 28,
+            "replay": false,
+            "seed": 194695845,
+            "task": "dreamer"
+          },
+          {
+            "index": 56801,
+            "position": 29,
+            "replay": false,
+            "seed": 757840950,
+            "task": "driving"
+          },
+          {
+            "index": 14395,
+            "position": 30,
+            "replay": true,
+            "seed": 2421967319,
+            "task": "dreamer"
+          },
+          {
+            "index": 28139,
+            "position": 31,
+            "replay": false,
+            "seed": 3957896857,
+            "task": "dreamer"
+          },
+          {
+            "index": 2509,
+            "position": 32,
+            "replay": false,
+            "seed": 3513809040,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 65816,
+            "position": 33,
+            "replay": false,
+            "seed": 3846362441,
+            "task": "rear_driving"
+          },
+          {
+            "index": 13346,
+            "position": 34,
+            "replay": false,
+            "seed": 889566028,
+            "task": "rear_driving"
+          },
+          {
+            "index": 24179,
+            "position": 35,
+            "replay": true,
+            "seed": 725015859,
+            "task": "dreamer"
+          },
+          {
+            "index": 68747,
+            "position": 36,
+            "replay": false,
+            "seed": 2786847582,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 48943,
+            "position": 37,
+            "replay": false,
+            "seed": 1779673603,
+            "task": "dreamer"
+          },
+          {
+            "index": 44543,
+            "position": 38,
+            "replay": false,
+            "seed": 3539870250,
+            "task": "qa"
+          },
+          {
+            "index": 61224,
+            "position": 39,
+            "replay": false,
+            "seed": 2886465811,
+            "task": "driving"
+          },
+          {
+            "index": 41211,
+            "position": 40,
+            "replay": false,
+            "seed": 2304893548,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 10476,
+            "position": 41,
+            "replay": false,
+            "seed": 1601881985,
+            "task": "rear_driving"
+          },
+          {
+            "index": 72577,
+            "position": 42,
+            "replay": true,
+            "seed": 2416941275,
+            "task": "driving"
+          },
+          {
+            "index": 23018,
+            "position": 43,
+            "replay": false,
+            "seed": 3083947441,
+            "task": "dreamer"
+          },
+          {
+            "index": 39529,
+            "position": 44,
+            "replay": false,
+            "seed": 2210394353,
+            "task": "commentary"
+          },
+          {
+            "index": 60838,
+            "position": 45,
+            "replay": false,
+            "seed": 298809389,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 29083,
+            "position": 46,
+            "replay": false,
+            "seed": 2644260277,
+            "task": "rear_driving"
+          },
+          {
+            "index": 50958,
+            "position": 47,
+            "replay": false,
+            "seed": 4055547150,
+            "task": "driving"
+          },
+          {
+            "index": 16174,
+            "position": 48,
+            "replay": false,
+            "seed": 3703168041,
+            "task": "dreamer"
+          },
+          {
+            "index": 21786,
+            "position": 49,
+            "replay": false,
+            "seed": 2513701877,
+            "task": "driving"
+          },
+          {
+            "index": 72745,
+            "position": 50,
+            "replay": false,
+            "seed": 4135411126,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 20602,
+            "position": 51,
+            "replay": false,
+            "seed": 4202389802,
+            "task": "qa"
+          },
+          {
+            "index": 2323,
+            "position": 52,
+            "replay": false,
+            "seed": 987130873,
+            "task": "qa"
+          },
+          {
+            "index": 73034,
+            "position": 53,
+            "replay": false,
+            "seed": 2959068454,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 35523,
+            "position": 54,
+            "replay": true,
+            "seed": 1424950980,
+            "task": "dreamer"
+          },
+          {
+            "index": 37914,
+            "position": 55,
+            "replay": false,
+            "seed": 993506144,
+            "task": "rear_driving"
+          },
+          {
+            "index": 58194,
+            "position": 56,
+            "replay": false,
+            "seed": 494056954,
+            "task": "dreamer"
+          },
+          {
+            "index": 73356,
+            "position": 57,
+            "replay": false,
+            "seed": 173707446,
+            "task": "dreamer"
+          },
+          {
+            "index": 37291,
+            "position": 58,
+            "replay": true,
+            "seed": 2090073553,
+            "task": "qa"
+          },
+          {
+            "index": 35836,
+            "position": 59,
+            "replay": false,
+            "seed": 2265258464,
+            "task": "qa"
+          },
+          {
+            "index": 6938,
+            "position": 60,
+            "replay": false,
+            "seed": 3896235808,
+            "task": "rear_driving"
+          },
+          {
+            "index": 48626,
+            "position": 61,
+            "replay": false,
+            "seed": 1251374250,
+            "task": "geometry_qa"
+          },
+          {
+            "index": 13924,
+            "position": 62,
+            "replay": false,
+            "seed": 379906356,
+            "task": "qa"
+          },
+          {
+            "index": 33416,
+            "position": 63,
+            "replay": false,
+            "seed": 924419016,
+            "task": "dreamer"
+          }
+        ],
+        "seconds": 140.0706494479964,
+        "stats": {
+          "components": {
+            "distance": 1.5269778008971895,
+            "language": 0.9097583743813282,
+            "presence": 0.6826834689341319,
+            "route": 0.027534481017243897,
+            "speed": 0.31052416176467507
+          },
+          "counts": {
+            "distance": 112,
+            "language": 803,
+            "presence": 223,
+            "route": 860,
+            "speed": 430
+          },
+          "gradient_norm": 23.350343704223633,
+          "loss": 1.6897492711295117
+        }
+      },
+      "reference_next_update_seconds": 151.63147896699957,
+      "reference_pid": 107724,
+      "reference_seconds": 345.79393946499476,
+      "resume_pid": 107722,
+      "resume_seconds": 209.30945003800298,
+      "resume_update_seconds": 153.45631694499025,
+      "save_seconds": 29.03499602600641,
+      "scope": "Separate interpreter/model/optimizer/data construction. Same physical server; simulates restart without rebooting the shared server.",
+      "stage": "joint",
+      "temporary_weights_selected": false,
+      "unique_window_replay_count": 16,
+      "unique_window_task_counts": {
+        "commentary": 14,
+        "dreamer": 44,
+        "driving": 16,
+        "geometry_qa": 24,
+        "qa": 16,
+        "rear_driving": 14
+      }
+    }
+  },
+  "report_generator_sha256": "8d279ae36141e479577f005f0576f6c052a4e8bb222199a5e5ded9227f9f200a",
+  "sparse_kernel_snapshots": {
+    "alignment": {
+      "completed_updates": 2,
+      "numerical_policy": {
+        "cublas_workspace": ":4096:8",
+        "cudnn_benchmark": false,
+        "flash_backward_deterministic": true,
+        "schema": 2,
+        "sparse_kernel_checkpointing": "Python dispatch; FP32; split-K=1; checkpoint tuner tables; prime before update zero",
+        "tf32": false,
+        "torch_deterministic": true,
+        "vision_position_grid": "Native grid identity; reject unreviewed resize",
+        "waypoint_accumulation": "FP32 triangular scan"
+      },
+      "source_checkpoint_sha256": "74c0f9559a1f102a3eb017f2489c25f2cd0fddd8ef40abe44d3fdb224514cdcc",
+      "sparse_kernels": {
+        "schema": 1,
+        "tables": {
+          "kc_dgrad_cache": [],
+          "kc_forward_cache": [
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m32n64k16m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                54,
+                54,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m64n32k16m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                108,
+                108,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m32n64k16m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                216,
+                216,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m64n64k8m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                432,
+                432,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m64n64k8m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                576,
+                576,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            }
+          ],
+          "kc_wgrad_cache": []
+        }
+      },
+      "stage": "align"
+    },
+    "joint": {
+      "completed_updates": 1,
+      "optimizer_parameter_groups": [
+        {
+          "amsgrad": false,
+          "base_momentum": 0.85,
+          "betas": [
+            0.9499242088133025,
+            0.999
+          ],
+          "capturable": false,
+          "differentiable": false,
+          "eps": 1e-08,
+          "foreach": null,
+          "fused": null,
+          "initial_lr": 4e-06,
+          "lr": 4.072759539229577e-06,
+          "max_lr": 0.0001,
+          "max_momentum": 0.95,
+          "maximize": false,
+          "min_lr": 3.9999999999999996e-10,
+          "name": "connector",
+          "params": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60
+          ],
+          "weight_decay": 0.1
+        },
+        {
+          "amsgrad": false,
+          "base_momentum": 0.85,
+          "betas": [
+            0.9499242088133025,
+            0.999
+          ],
+          "capturable": false,
+          "differentiable": false,
+          "eps": 1e-08,
+          "foreach": null,
+          "fused": null,
+          "initial_lr": 4.0000000000000003e-07,
+          "lr": 4.072759539229574e-07,
+          "max_lr": 1e-05,
+          "max_momentum": 0.95,
+          "maximize": false,
+          "min_lr": 4.0000000000000004e-11,
+          "name": "lidar",
+          "params": [
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            140,
+            141,
+            142,
+            143,
+            144,
+            145,
+            146,
+            147,
+            148,
+            149,
+            150,
+            151,
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161,
+            162,
+            163,
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
+            186,
+            187,
+            188,
+            189,
+            190,
+            191,
+            192,
+            193,
+            194,
+            195,
+            196,
+            197,
+            198,
+            199,
+            200,
+            201,
+            202,
+            203,
+            204,
+            205,
+            206,
+            207,
+            208,
+            209,
+            210,
+            211,
+            212,
+            213,
+            214,
+            215,
+            216,
+            217,
+            218,
+            219,
+            220,
+            221,
+            222,
+            223,
+            224,
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232,
+            233,
+            234,
+            235,
+            236,
+            237,
+            238,
+            239,
+            240,
+            241,
+            242,
+            243,
+            244,
+            245,
+            246,
+            247,
+            248,
+            249,
+            250,
+            251,
+            252,
+            253,
+            254,
+            255,
+            256,
+            257,
+            258,
+            259,
+            260,
+            261,
+            262,
+            263,
+            264,
+            265,
+            266,
+            267,
+            268,
+            269,
+            270,
+            271,
+            272,
+            273,
+            274,
+            275,
+            276,
+            277,
+            278,
+            279,
+            280,
+            281,
+            282,
+            283,
+            284,
+            285,
+            286,
+            287,
+            288,
+            289,
+            290,
+            291,
+            292,
+            293,
+            294,
+            295,
+            296,
+            297,
+            298,
+            299,
+            300,
+            301,
+            302,
+            303,
+            304,
+            305,
+            306,
+            307,
+            308,
+            309,
+            310,
+            311,
+            312,
+            313,
+            314,
+            315,
+            316,
+            317,
+            318,
+            319,
+            320,
+            321,
+            322,
+            323,
+            324,
+            325,
+            326,
+            327,
+            328,
+            329,
+            330,
+            331,
+            332,
+            333,
+            334,
+            335,
+            336,
+            337,
+            338
+          ],
+          "weight_decay": 0.1
+        },
+        {
+          "amsgrad": false,
+          "base_momentum": 0.85,
+          "betas": [
+            0.9499242088133025,
+            0.999
+          ],
+          "capturable": false,
+          "differentiable": false,
+          "eps": 1e-08,
+          "foreach": null,
+          "fused": null,
+          "initial_lr": 4e-08,
+          "lr": 4.0727595392295824e-08,
+          "max_lr": 1e-06,
+          "max_momentum": 0.95,
+          "maximize": false,
+          "min_lr": 4e-12,
+          "name": "rgb",
+          "params": [
+            339,
+            340,
+            341,
+            342,
+            343,
+            344,
+            345,
+            346,
+            347,
+            348,
+            349,
+            350,
+            351,
+            352,
+            353,
+            354,
+            355,
+            356,
+            357,
+            358,
+            359,
+            360,
+            361,
+            362,
+            363,
+            364,
+            365,
+            366,
+            367,
+            368,
+            369,
+            370,
+            371,
+            372,
+            373,
+            374,
+            375,
+            376,
+            377,
+            378,
+            379,
+            380,
+            381,
+            382,
+            383,
+            384,
+            385,
+            386,
+            387,
+            388,
+            389,
+            390,
+            391,
+            392,
+            393,
+            394,
+            395,
+            396,
+            397,
+            398,
+            399,
+            400,
+            401,
+            402,
+            403,
+            404,
+            405,
+            406,
+            407,
+            408,
+            409,
+            410,
+            411,
+            412,
+            413,
+            414,
+            415,
+            416,
+            417,
+            418,
+            419,
+            420,
+            421,
+            422,
+            423,
+            424,
+            425,
+            426,
+            427,
+            428,
+            429,
+            430,
+            431,
+            432,
+            433,
+            434,
+            435,
+            436,
+            437,
+            438,
+            439,
+            440,
+            441,
+            442,
+            443,
+            444,
+            445,
+            446,
+            447,
+            448,
+            449,
+            450,
+            451,
+            452,
+            453,
+            454,
+            455,
+            456,
+            457,
+            458,
+            459,
+            460,
+            461,
+            462,
+            463,
+            464,
+            465,
+            466,
+            467,
+            468,
+            469,
+            470,
+            471,
+            472,
+            473,
+            474,
+            475,
+            476,
+            477,
+            478,
+            479,
+            480,
+            481,
+            482,
+            483,
+            484,
+            485,
+            486,
+            487,
+            488,
+            489,
+            490,
+            491,
+            492,
+            493,
+            494,
+            495,
+            496,
+            497,
+            498,
+            499,
+            500,
+            501,
+            502,
+            503,
+            504,
+            505,
+            506,
+            507,
+            508,
+            509,
+            510,
+            511,
+            512,
+            513,
+            514,
+            515,
+            516,
+            517,
+            518,
+            519,
+            520,
+            521,
+            522,
+            523,
+            524,
+            525,
+            526,
+            527,
+            528,
+            529,
+            530,
+            531,
+            532,
+            533,
+            534,
+            535,
+            536,
+            537,
+            538,
+            539,
+            540,
+            541,
+            542,
+            543,
+            544,
+            545,
+            546,
+            547,
+            548,
+            549,
+            550,
+            551,
+            552,
+            553,
+            554,
+            555,
+            556,
+            557,
+            558,
+            559,
+            560,
+            561,
+            562,
+            563,
+            564,
+            565,
+            566,
+            567,
+            568,
+            569,
+            570,
+            571,
+            572,
+            573,
+            574,
+            575,
+            576,
+            577,
+            578,
+            579,
+            580,
+            581,
+            582,
+            583,
+            584,
+            585,
+            586,
+            587,
+            588,
+            589,
+            590,
+            591,
+            592,
+            593,
+            594,
+            595,
+            596,
+            597,
+            598,
+            599,
+            600,
+            601,
+            602,
+            603,
+            604,
+            605,
+            606,
+            607,
+            608,
+            609,
+            610,
+            611,
+            612,
+            613,
+            614,
+            615,
+            616,
+            617,
+            618,
+            619,
+            620,
+            621,
+            622,
+            623,
+            624,
+            625,
+            626,
+            627,
+            628,
+            629,
+            630,
+            631,
+            632,
+            633,
+            634,
+            635,
+            636,
+            637,
+            638,
+            639,
+            640,
+            641,
+            642,
+            643,
+            644,
+            645,
+            646,
+            647,
+            648,
+            649,
+            650,
+            651,
+            652,
+            653,
+            654,
+            655,
+            656,
+            657,
+            658,
+            659,
+            660,
+            661,
+            662,
+            663,
+            664,
+            665,
+            666,
+            667,
+            668,
+            669,
+            670,
+            671,
+            672,
+            673,
+            674,
+            675,
+            676,
+            677,
+            678,
+            679,
+            680,
+            681,
+            682,
+            683,
+            684
+          ],
+          "weight_decay": 0.1
+        },
+        {
+          "amsgrad": false,
+          "base_momentum": 0.85,
+          "betas": [
+            0.9499242088133025,
+            0.999
+          ],
+          "capturable": false,
+          "differentiable": false,
+          "eps": 1e-08,
+          "foreach": null,
+          "fused": null,
+          "initial_lr": 4.0000000000000003e-07,
+          "lr": 4.072759539229574e-07,
+          "max_lr": 1e-05,
+          "max_momentum": 0.95,
+          "maximize": false,
+          "min_lr": 4.0000000000000004e-11,
+          "name": "lora",
+          "params": [
+            685,
+            686,
+            687,
+            688,
+            689,
+            690,
+            691,
+            692,
+            693,
+            694,
+            695,
+            696,
+            697,
+            698,
+            699,
+            700,
+            701,
+            702,
+            703,
+            704,
+            705,
+            706,
+            707,
+            708,
+            709,
+            710,
+            711,
+            712,
+            713,
+            714,
+            715,
+            716,
+            717,
+            718,
+            719,
+            720,
+            721,
+            722,
+            723,
+            724,
+            725,
+            726,
+            727,
+            728,
+            729,
+            730,
+            731,
+            732,
+            733,
+            734,
+            735,
+            736,
+            737,
+            738,
+            739,
+            740,
+            741,
+            742,
+            743,
+            744,
+            745,
+            746,
+            747,
+            748,
+            749,
+            750,
+            751,
+            752,
+            753,
+            754,
+            755,
+            756,
+            757,
+            758,
+            759,
+            760,
+            761,
+            762,
+            763,
+            764,
+            765,
+            766,
+            767,
+            768,
+            769,
+            770,
+            771,
+            772,
+            773,
+            774,
+            775,
+            776,
+            777,
+            778,
+            779,
+            780,
+            781,
+            782,
+            783,
+            784,
+            785,
+            786,
+            787,
+            788,
+            789,
+            790,
+            791,
+            792,
+            793,
+            794,
+            795,
+            796,
+            797,
+            798,
+            799,
+            800,
+            801,
+            802,
+            803,
+            804,
+            805,
+            806,
+            807,
+            808,
+            809,
+            810,
+            811,
+            812,
+            813,
+            814,
+            815,
+            816,
+            817,
+            818,
+            819,
+            820,
+            821,
+            822,
+            823,
+            824,
+            825,
+            826,
+            827,
+            828,
+            829,
+            830,
+            831,
+            832,
+            833,
+            834,
+            835,
+            836,
+            837,
+            838,
+            839,
+            840,
+            841,
+            842,
+            843,
+            844,
+            845,
+            846,
+            847,
+            848,
+            849,
+            850,
+            851,
+            852,
+            853,
+            854,
+            855,
+            856,
+            857,
+            858,
+            859,
+            860,
+            861,
+            862,
+            863,
+            864,
+            865,
+            866,
+            867,
+            868,
+            869,
+            870,
+            871,
+            872,
+            873,
+            874,
+            875,
+            876,
+            877,
+            878,
+            879,
+            880,
+            881,
+            882,
+            883,
+            884,
+            885,
+            886,
+            887,
+            888,
+            889,
+            890,
+            891,
+            892,
+            893,
+            894,
+            895,
+            896,
+            897,
+            898,
+            899,
+            900,
+            901,
+            902,
+            903,
+            904,
+            905,
+            906,
+            907,
+            908,
+            909,
+            910,
+            911,
+            912,
+            913,
+            914,
+            915,
+            916,
+            917,
+            918,
+            919,
+            920,
+            921,
+            922,
+            923,
+            924,
+            925,
+            926,
+            927,
+            928,
+            929,
+            930,
+            931,
+            932,
+            933,
+            934,
+            935,
+            936,
+            937,
+            938,
+            939,
+            940,
+            941,
+            942,
+            943,
+            944,
+            945,
+            946,
+            947,
+            948,
+            949,
+            950,
+            951,
+            952,
+            953,
+            954,
+            955,
+            956,
+            957,
+            958,
+            959,
+            960,
+            961,
+            962,
+            963,
+            964,
+            965,
+            966,
+            967,
+            968,
+            969,
+            970,
+            971,
+            972,
+            973,
+            974,
+            975,
+            976,
+            977,
+            978,
+            979,
+            980,
+            981,
+            982,
+            983,
+            984,
+            985,
+            986,
+            987,
+            988,
+            989,
+            990,
+            991,
+            992,
+            993,
+            994,
+            995,
+            996,
+            997,
+            998,
+            999,
+            1000,
+            1001,
+            1002,
+            1003,
+            1004,
+            1005,
+            1006,
+            1007,
+            1008,
+            1009,
+            1010,
+            1011,
+            1012,
+            1013,
+            1014,
+            1015,
+            1016,
+            1017,
+            1018,
+            1019,
+            1020
+          ],
+          "weight_decay": 0.1
+        },
+        {
+          "amsgrad": false,
+          "base_momentum": 0.85,
+          "betas": [
+            0.9499242088133025,
+            0.999
+          ],
+          "capturable": false,
+          "differentiable": false,
+          "eps": 1e-08,
+          "foreach": null,
+          "fused": null,
+          "initial_lr": 4.0000000000000003e-07,
+          "lr": 4.072759539229574e-07,
+          "max_lr": 1e-05,
+          "max_momentum": 0.95,
+          "maximize": false,
+          "min_lr": 4.0000000000000004e-11,
+          "name": "driving",
+          "params": [
+            1021,
+            1022,
+            1023,
+            1024,
+            1025,
+            1026,
+            1027,
+            1028,
+            1029,
+            1030
+          ],
+          "weight_decay": 0.1
+        },
+        {
+          "amsgrad": false,
+          "base_momentum": 0.85,
+          "betas": [
+            0.9499242088133025,
+            0.999
+          ],
+          "capturable": false,
+          "differentiable": false,
+          "eps": 1e-08,
+          "foreach": null,
+          "fused": null,
+          "initial_lr": 4.0000000000000003e-07,
+          "lr": 4.072759539229574e-07,
+          "max_lr": 1e-05,
+          "max_momentum": 0.95,
+          "maximize": false,
+          "min_lr": 4.0000000000000004e-11,
+          "name": "navigation",
+          "params": [
+            1031,
+            1032,
+            1033,
+            1034,
+            1035,
+            1036
+          ],
+          "weight_decay": 0.1
+        }
+      ],
+      "source_checkpoint_sha256": "7fa3ee2614f20901ab4e57a42d315dde3b28b0725929339291f8e60e01b815d5",
+      "sparse_kernels": {
+        "schema": 1,
+        "tables": {
+          "kc_dgrad_cache": [
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32ttt_m64n64k8m32n32k8A1_200_C311LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                432,
+                432,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32ttt_m32n64k16m32n32k8A1_200_C311LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                576,
+                576,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            }
+          ],
+          "kc_forward_cache": [
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m64n64k8m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                54,
+                54,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m32n64k16m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                108,
+                108,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m64n32k16m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                216,
+                216,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m32n64k16m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                432,
+                432,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32tnt_m64n64k8m32n32k8A1_200_C301LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                576,
+                576,
+                8,
+                9,
+                -1,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            }
+          ],
+          "kc_wgrad_cache": [
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32ntt_m128n128k8m32n64k8A1_210_C321LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                432,
+                432,
+                8,
+                9,
+                32,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            },
+            {
+              "arch": [
+                8,
+                9
+              ],
+              "descriptor": "Simt_f32f32f32f32f32ntt_m64n64k8m32n32k8A1_210_C321LLL_SK",
+              "key": [
+                0,
+                0,
+                0,
+                576,
+                576,
+                8,
+                9,
+                64,
+                false
+              ],
+              "nvrtc": false,
+              "splitk": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "status": "technical_checks_complete_budget_review_pending",
+  "technical_checks_passed": true,
+  "time_calibration": {
+    "alignment_scale": 1.0373532794335263,
+    "joint_scale": 1.0368335899185404,
+    "training_rates_source": "Complete Stage 3 mixture, conservatively adjusted by a new unique accumulation-64 window per stage",
+    "validation_scale": 1.0637318615612,
+    "validation_source": "Complete new RGB baseline; paired forecast still extrapolates the Stage 3 timing subset"
+  },
+  "unit_log_sha256": "6d3852cff9cd07217c36e88afbe1afbaf152cda90bf87e736a8eede17aea6936",
+  "unit_tests": 37
+}

@@ -143,8 +143,10 @@ Results land in the run directory (e.g. `eval220v2/`): `results/*.json`, `route_
 
 - The LiDAR extension is developed on `feat/simlingo-lidar`. Its
   [staged plan](docs/lidar-training-plan.md), [Stage 2 checks](docs/lidar-stage2-report.md),
-  and [single-GPU Stage 3 profile](docs/lidar-stage3-report.md) record the implementation,
-  verification and measured budget. Main training is pending budget review and
+  [single-GPU Stage 3 profile](docs/lidar-stage3-report.md), and completed
+  [pre-training readiness checks](docs/lidar-readiness-report.md) record the
+  implementation, full released RGB baseline, parking coverage, exact fresh-process
+  recovery and measured budget. Main training is pending budget review and
   notification before launch on GPU 2.
 - The original upstream README is kept unchanged at [`README_original.md`](README_original.md).
 - The full evaluation report (`simlingo_bench2drive_report.docx` / `.pdf`) is intentionally **not** part of

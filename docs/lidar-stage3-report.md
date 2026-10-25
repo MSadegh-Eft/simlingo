@@ -126,3 +126,9 @@ Reproduction: [`Stage 3 README`](../tools/lidar_stage3/README.md).
 
 **Next:** review the actual budget and parking coverage with the user before
 Stage 4. Notify the user before any main training on GPU 2. Nothing auto-launches.
+
+Follow-up: the [completed readiness checks](lidar-readiness-report.md) add parking,
+full released RGB validation and exact fresh-process recovery. That recovery
+exposed sparse-kernel/RNG state missing from the same-process test above; the
+follow-up report records its correction and the revised budget. Stage 4 still
+requires budget review and notification before launch.
