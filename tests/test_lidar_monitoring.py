@@ -26,6 +26,7 @@ from simlingo_training.lidar.train import run_monitored,monitor_signals,atomic_c
 from simlingo_training.lidar.runtime import UUID
 from simlingo_training.lidar.telemetry import Reporter
 from simlingo_training.lidar.training_report import recommendations,svg_curves,write_report
+from tools.lidar_training.manage import create_tmux_session
 
 
 def metrics(error=1.):
@@ -299,6 +300,34 @@ class TerminalTests(unittest.TestCase):
                     with training_lock(path): pass
             with training_lock(path): pass
 
+    def test_tmux_attach_detach_duplicate_rejection_and_retained_cpu_log(self):
+        socket='simlingo-test-'+uuid.uuid4().hex[:10]; session='cpu-smoke'
+        prefix=['tmux','-L',socket]
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root); log=root/'cpu.log'
+            code='import time\nfrom pathlib import Path\np=Path('+repr(str(log))+')\nfor i in range(24):\n print("CPU monitoring smoke",i,flush=True)\n with p.open("a") as f: f.write(str(i)+"\\n")\n time.sleep(.1)\n'
+            command=['python','-u','-c',code]
+            try:
+                # Exercise a common user customization: the first window is 1.
+                subprocess.run(prefix+['-f','/dev/null','new-session','-d','-s','seed','sleep 30'],check=True)
+                subprocess.run(prefix+['set-option','-g','base-index','1'],check=True)
+                create_tmux_session(command,root,session,socket)
+                with self.assertRaises(RuntimeError): create_tmux_session(command,root,session,socket)
+                attached=subprocess.Popen(['script','-q','-c',shlex.join(prefix+['attach-session','-t',session]),'/dev/null'],
+                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env={**os.environ,'TERM':'xterm'})
+                time.sleep(.3); before=len(log.read_text().splitlines())
+                out,err=attached.communicate(b'\x02d',timeout=10)
+                self.assertEqual(attached.returncode,0,(out,err)); self.assertIn(b'CPU monitoring smoke',out)
+                time.sleep(.3); self.assertGreater(len(log.read_text().splitlines()),before)
+                deadline=time.monotonic()+8
+                while time.monotonic()<deadline:
+                    dead=subprocess.check_output(prefix+['display-message','-p','-t',session,'#{pane_dead}'],text=True).strip()
+                    if dead=='1': break
+                    time.sleep(.1)
+                self.assertEqual(dead,'1'); self.assertEqual(len(log.read_text().splitlines()),24)
+                pane=subprocess.check_output(prefix+['capture-pane','-p','-t',session],text=True)
+                self.assertIn('CPU monitoring smoke',pane)
+            finally: subprocess.run(prefix+['kill-server'],capture_output=True)
 
 
 if __name__=='__main__': unittest.main()
