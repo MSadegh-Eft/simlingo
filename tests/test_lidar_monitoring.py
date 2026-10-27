@@ -16,6 +16,7 @@ import uuid
 import numpy as np
 import torch
 from torch import nn
+from simlingo_training.lidar.control import Controller,stopping_defaults,driving_score,full_candidate_order
 from simlingo_training.lidar.data import Sample,TASKS
 from simlingo_training.lidar.evaluation import evaluate_requests,evaluation_state,summarize_diagnostics
 from simlingo_training.lidar.monitor_protocol import build_protocol
@@ -27,6 +28,53 @@ def metrics(error=1.):
     return {name:{'value':error if name in ('route_ade','speed_ade') else 95.,
                   'samples':100,'groups':20,'population_sha256':name}
             for name in ('route_ade','speed_ade','qa_structured_accuracy','dreamer_decision_accuracy','commentary_rouge_l')}
+
+
+class ControlTests(unittest.TestCase):
+    def test_plateau_requires_patience_minimum_and_descending_lr(self):
+        c=Controller(stopping_defaults('align'))
+        for u in (0,125,250,375):
+            r=c.observe(u,750,1.,1.,1.,{'passed':True},[.1],{'u':u})
+            self.assertIsNone(r['stop_reason'])
+        self.assertIsNone(c.observe(500,750,1.,1.,1.,{'passed':True},[.3],{})['stop_reason'])
+        self.assertEqual(c.observe(625,750,1.,1.,1.,{'passed':True},[.1],{})['stop_reason'],'validation_plateau')
+
+    def test_geometry_progress_resets_patience_and_state_round_trips(self):
+        c=Controller(stopping_defaults('align'))
+        c.observe(0,750,1.,1.,1.,{'passed':True},[1.],{})
+        c.observe(125,750,1.,1.,1.,{'passed':True},[1.],{})
+        c=Controller(c.rules,json.loads(json.dumps(c.state)))
+        self.assertEqual(c.state['wait'],1)
+        row=c.observe(250,750,1.,1.,.98,{'passed':True},[.1],{})
+        self.assertEqual(row['improved'],['geometry']); self.assertEqual(row['wait'],0)
+
+    def test_candidate_ranks_retention_first_and_excludes_untrained_zero(self):
+        c=Controller(stopping_defaults('align'))
+        c.observe(0,750,.01,1.,1.,{'passed':True},[1.],{})
+        self.assertIsNone(c.state['candidate'])
+        c.observe(125,750,.8,1.,1.,{'passed':False},[1.],{})
+        c.observe(250,750,1.,1.,1.,{'passed':True},[1.],{})
+        c.observe(375,750,.7,1.,1.,{'passed':False},[1.],{})
+        self.assertEqual(c.state['candidate']['update'],250)
+
+    def test_invalid_or_repeated_observation_cannot_advance_state(self):
+        c=Controller(stopping_defaults('align')); original=copy.deepcopy(c.state)
+        for x in (float('nan'),None,float('inf')):
+            with self.assertRaises(ValueError): c.observe(0,750,x,1.,1.,{'passed':True},[1.],{})
+            self.assertEqual(c.state,original)
+        c.observe(0,750,1.,1.,1.,{'passed':True},[1.],{})
+        with self.assertRaises(ValueError): c.observe(0,750,1.,1.,1.,{'passed':True},[1.],{})
+
+    def test_budget_stops_even_while_learning_and_fallback_is_bounded(self):
+        c=Controller(stopping_defaults('align'))
+        c.observe(0,750,1.,1.,1.,{'passed':True},[1.],{})
+        self.assertEqual(c.observe(750,750,.5,.5,.5,{'passed':True},[.01],{})['stop_reason'],'budget_exhausted')
+        self.assertEqual(full_candidate_order(500,625),[500,625])
+        self.assertEqual(full_candidate_order(625,625),[625])
+
+    def test_selection_requires_same_metric_population(self):
+        a=metrics(); b=metrics(); b['route_ade']['population_sha256']='other'
+        with self.assertRaises(ValueError): driving_score(a,b)
 
 
 class DiagnosticTests(unittest.TestCase):

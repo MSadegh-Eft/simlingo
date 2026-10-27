@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import random
 import shutil
+import time
+from collections import Counter
 
 import numpy as np
 import psutil
@@ -35,9 +37,10 @@ def initialize_device(output):
     check_resources(output)
 
 
-def check_resources(output):
+def check_resources(output,extra_disk_bytes=0):
     if psutil.virtual_memory().available<8*GIB: raise MemoryError('Host available RAM below 8 GiB')
-    if shutil.disk_usage(output).free<150*GIB: raise OSError('Shared free space below 150 GiB')
+    if shutil.disk_usage(output).free<150*GIB+extra_disk_bytes:
+        raise OSError('Insufficient shared free space beyond the 150 GiB reserve')
     if torch.cuda.is_initialized() and torch.cuda.memory_reserved()>40*GIB:
         raise MemoryError('Training process exceeds 40 GiB GPU reserve cap')
 
@@ -73,22 +76,38 @@ class TrainingSession:
         self.sampler=TaskSampler(dataset.pools,stage,manifest_hash=dataset.manifest_hash,
             bucket_pools=dataset.bucket_pools,bucket_weights=dataset.bucket_weights)
         self.updates=0; self.total_updates=total_updates; self.poisoned=False
+        self.run_state={'schema':1,'seen_indices':[],'task_counts':{},'replay_count':0,
+                        'bucket_counts':{},'training_seconds':0.,'controller':None}
+        self._seen=set()
         self.metadata=checkpoint_metadata(model,dataset.path,{'microbatch':1,'accumulation':64,'cache':False,
             'numerics':model.lidar_numerics_policy,'total_updates':total_updates,'run':config})
 
-    def update(self,observe=None,check=None):
+    def update(self,observe=None,check=None,progress=None):
         if self.poisoned: raise RuntimeError('Failed window requires fresh-process recovery')
         if self.updates>=self.total_updates: raise ValueError('Agreed update budget exhausted')
         if check: check()
         start=self.sampler.position
+        started=time.monotonic()
         try:
             requests=[self.sampler.request_at(i) for i in range(start,start+64)]
             samples=[self.dataset[r] for r in requests]
             if observe: observe(requests,samples)
-            stats=step_window(self.model,samples,self.optimizer,self.scheduler,generation_limit=100)
+            kwargs={'generation_limit':100}
+            if progress: kwargs['progress']=progress
+            stats=step_window(self.model,samples,self.optimizer,self.scheduler,**kwargs)
             self.model.zero_grad(set_to_none=True)
             if check: check()
             self.sampler.position=start+64; self.updates+=1
+            if hasattr(self,'run_state'):
+                self._seen.update(r.index for r in requests)
+                self.run_state['seen_indices']=sorted(self._seen)
+                tasks=Counter(self.run_state['task_counts']); tasks.update(r.task for r in requests)
+                self.run_state['task_counts']=dict(tasks)
+                self.run_state['replay_count']+=sum(r.replay for r in requests)
+                buckets=Counter(self.run_state['bucket_counts'])
+                for r in requests: buckets.update(self.dataset.row_buckets.get(r.index,()))
+                self.run_state['bucket_counts']=dict(buckets)
+                self.run_state['training_seconds']+=time.monotonic()-started
             return stats
         except BaseException:
             self.poisoned=True
@@ -97,10 +116,14 @@ class TrainingSession:
     def save(self,path):
         if self.poisoned: raise RuntimeError('Cannot save an incomplete/failed update')
         if self.sampler.position!=self.updates*64: raise ValueError('Committed sampler differs from optimizer count')
-        save_checkpoint(path,self.model,self.optimizer,self.scheduler,self.sampler,self.updates,self.metadata)
+        save_checkpoint(path,self.model,self.optimizer,self.scheduler,self.sampler,self.updates,self.metadata,
+                        run_state=getattr(self,'run_state',None))
 
     def resume(self,path):
-        self.updates=load_checkpoint(path,self.model,self.optimizer,self.scheduler,self.sampler,self.metadata)
+        def restore(state):
+            if state is None or state.get('schema')!=1: raise ValueError('Missing completed-window tracking state')
+            self.run_state=state; self._seen=set(state['seen_indices'])
+        self.updates=load_checkpoint(path,self.model,self.optimizer,self.scheduler,self.sampler,self.metadata,on_state=restore)
         if not 0<=self.updates<=self.total_updates or self.sampler.position!=self.updates*64:
             self.poisoned=True; raise ValueError('Checkpoint boundary/count differs')
         self.poisoned=False

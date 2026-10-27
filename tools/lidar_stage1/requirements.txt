@@ -32,3 +32,4 @@ ujson==5.9.0
 imgaug==0.4.0
 scikit-image==0.21.0
 imageio==2.34.0
+tqdm==4.70.1

@@ -41,7 +41,7 @@ def checkpoint_metadata(model,manifest,experiment_config):
         'optimizer':{'type':'AdamW','weight_decay':.1,'beta2':.999,'eps':1e-8,'clip_norm':.3},
         'scheduler':{'type':'OneCycleLR','warmup_fraction':.05,'div_factor':25,'final_div_factor':10000,'beta1':[.95,.85,.95]},
         'versions':{**{k:importlib.metadata.version(k) for k in ('torch','transformers','peft','spconv-cu124','flash-attn',
-            'numpy','scipy','Pillow','imgaug','laspy','lazrs','tokenizers','omegaconf')},
+            'numpy','scipy','Pillow','imgaug','laspy','lazrs','tokenizers','omegaconf','tqdm')},
             'python':platform.python_version(),'cuda':torch.version.cuda,'cudnn':torch.backends.cudnn.version(),'opencv':cv2.__version__},
         'experiment_config':experiment_config}
 
@@ -59,7 +59,7 @@ def normalized_loss(terms,counts):
     return sum(LOSS_WEIGHTS[k]*v/max(1,counts[k]) for k,v in terms.items())
 
 
-def step_window(model,samples,optimizer,scheduler=None,device='cuda',generation_limit=100):
+def step_window(model,samples,optimizer,scheduler=None,device='cuda',generation_limit=100,progress=None):
     if not samples: raise ValueError('Empty accumulation window')
     counts = {k:sum(model.loss_counts(s)[k] for s in samples) for k in LOSS_WEIGHTS}
     optimizer.zero_grad(set_to_none=True)
@@ -72,6 +72,7 @@ def step_window(model,samples,optimizer,scheduler=None,device='cuda',generation_
         if not torch.isfinite(loss): raise FloatingPointError('Non-finite objective; no optimizer update performed')
         loss.backward()
         for k,v in terms.items(): numerators[k] += float(v.detach())
+        if progress: progress(1)
     parameters = [p for g in optimizer.param_groups for p in g['params']]
     grad_norm = torch.nn.utils.clip_grad_norm_(parameters,.3,error_if_nonfinite=True)
     optimizer.step()
@@ -81,7 +82,7 @@ def step_window(model,samples,optimizer,scheduler=None,device='cuda',generation_
             'counts':counts,'gradient_norm':float(grad_norm)}
 
 
-def save_checkpoint(path,model,optimizer,scheduler,sampler,updates,metadata):
+def save_checkpoint(path,model,optimizer,scheduler,sampler,updates,metadata,run_state=None):
     from simlingo_training.lidar.sparse_kernels import dump
     path = Path(path); path.parent.mkdir(parents=True,exist_ok=True)
     if any(p.grad is not None for p in model.parameters()):
@@ -91,18 +92,20 @@ def save_checkpoint(path,model,optimizer,scheduler,sampler,updates,metadata):
              'scheduler':scheduler.state_dict() if scheduler else None,'sampler':sampler.state_dict(),
              'updates':updates,'metadata':metadata,'rng':{'python':random.getstate(),'numpy':np.random.get_state(),
              'torch':torch.get_rng_state(),'cuda':torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else None}}
+    if run_state is not None: state['run_state']=run_state
     temporary = path.with_suffix(path.suffix+'.part')
     with temporary.open('wb') as f:
         torch.save(state,f); f.flush(); os.fsync(f.fileno())
     os.replace(temporary,path)
 
 
-def load_checkpoint(path,model,optimizer,scheduler,sampler,metadata):
+def load_checkpoint(path,model,optimizer,scheduler,sampler,metadata,on_state=None):
     from simlingo_training.lidar.sparse_kernels import restore
     # Only checkpoints produced by this trusted local training process are accepted.
     state = torch.load(str(path),map_location='cpu',weights_only=False)
     if state['schema']!=1 or state['stage']!=model.stage or state['metadata']!=metadata:
         raise ValueError('Checkpoint stage/config/provenance differs')
+    if on_state: on_state(state.get('run_state'))
     if (state['scheduler'] is None)!=(scheduler is None):
         raise ValueError('Checkpoint scheduler presence differs')
     model.load_state_dict(state['model'],strict=True)
