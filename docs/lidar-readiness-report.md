@@ -1,5 +1,10 @@
 # Pre-training readiness
 
+**Historical report for the previous runner.** The [monitored training update](lidar-monitored-training.md)
+adds stopping, diagnostic monitoring, transparency and permission guards. Its new
+GPU proofs are pending; this report does not establish readiness of the changed
+code. Old baseline/recovery artifacts are preserved without relabelling them.
+
 Technical checks before Stage 4 are complete on `feat/simlingo-lidar`. The actual training
 budget still needs user review. No alignment or main joint run was launched.
 Only disposable bounded checks used optimizer updates. The proposals remain

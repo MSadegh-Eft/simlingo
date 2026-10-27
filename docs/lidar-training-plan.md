@@ -1,5 +1,12 @@
 # Agreed LiDAR training plan
 
+**27 October 2026 update:** the [monitored training implementation](lidar-monitored-training.md)
+supersedes the fixed-budget runner and its launch instructions below. Initial
+ceilings remain 48k alignment / 74,304 joint presentations, with validation-based
+stopping, improved monitoring and explicit supervisor permission. New GPU baseline,
+recovery and monitoring-invariance verification is pending because GPU 2 is busy.
+The older reports remain historical evidence; main training has not started.
+
 Implement in stages on `feat/simlingo-lidar`, based on clean commit
 `4b143b74b235293d5b28737bcc496c3ec687fc92`. Each stage ends with a report and user
 review. Training duration is decided after the complete pipeline is profiled.
