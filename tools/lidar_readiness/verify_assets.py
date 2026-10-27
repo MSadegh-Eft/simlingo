@@ -1,5 +1,6 @@
 """Offline verification of pinned local pretrained assets and installed encoder."""
 import hashlib
+import argparse
 import json
 from pathlib import Path
 import tarfile
@@ -14,7 +15,7 @@ from simlingo_training.lidar.storage import digest_file,atomic_json
 ROOT=Path('/ehsan/m.sadegh/simlingo_lidar')
 
 
-def main():
+def main(output=None):
     assets=json.loads((ROOT/'reports/utonia-assets.json').read_text())
     archive=ROOT/'cache/utonia-de1f9deef4ee65e508d74347f8d0eb848d878abb.tar.gz'
     if digest_file(archive)!=assets['source_archive_sha256']: raise ValueError('Pinned Utonia source archive differs')
@@ -47,7 +48,9 @@ def main():
     report={'passed':True,'utonia_source_files':expected,'installed_utonia_files':installed,'generated_build_copy':generated,
         'hf_revision':SNAPSHOT.name,'hf_assets':hf,'released_sha256':released,'utonia_sha256':weights,
         'verification_source_sha256':digest_file(__file__)}
-    atomic_json(ROOT/'readiness/assets.json',report); print('All local pretrained assets match their pinned identities',flush=True)
+    atomic_json(output or ROOT/'readiness/assets.json',report); print('All local pretrained assets match their pinned identities',flush=True)
 
 
-if __name__=='__main__': main()
+if __name__=='__main__':
+    p=argparse.ArgumentParser(); p.add_argument('--output',type=Path)
+    main(p.parse_args().output)

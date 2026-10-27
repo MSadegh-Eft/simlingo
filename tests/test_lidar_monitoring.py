@@ -13,9 +13,11 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import MagicMock,patch
 import uuid
+
 import numpy as np
 import torch
 from torch import nn
+
 from simlingo_training.lidar.control import Controller,stopping_defaults,driving_score,full_candidate_order
 from simlingo_training.lidar.data import Sample,TASKS
 from simlingo_training.lidar.evaluation import evaluate_requests,evaluation_state,summarize_diagnostics
@@ -328,6 +330,18 @@ class TerminalTests(unittest.TestCase):
                 pane=subprocess.check_output(prefix+['capture-pane','-p','-t',session],text=True)
                 self.assertIn('CPU monitoring smoke',pane)
             finally: subprocess.run(prefix+['kill-server'],capture_output=True)
+
+
+class ReadinessEvidenceTests(unittest.TestCase):
+    def test_missing_or_old_gpu_evidence_cannot_publish_ready(self):
+        from tools.lidar_readiness.monitored_readiness import publish
+        with tempfile.TemporaryDirectory() as root,redirect_stdout(io.StringIO()):
+            root=Path(root); (root/'resume-align').mkdir()
+            atomic_json(root/'resume-align/result.json',{'passed':True,'checks':{'model':True},'metadata':{'code':{'old':'hash'}}})
+            report=publish(root)
+            self.assertFalse(report['technical_checks_passed']); self.assertFalse(report['monitored_training_ready'])
+            self.assertEqual(report['checks']['resume-align/result.json'],'failed')
+            self.assertEqual(report['checks']['baseline/result.json'],'pending')
 
 
 if __name__=='__main__': unittest.main()
