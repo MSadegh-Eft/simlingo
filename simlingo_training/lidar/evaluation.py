@@ -6,12 +6,15 @@ ROUGE-L here is word-token LCS F1 (0..100), without stemming or bootstrapping.
 """
 from collections import defaultdict
 from dataclasses import replace
+from contextlib import contextmanager, nullcontext
 import hashlib
+import random
 import re
 import time
 
 import numpy as np
 import torch
+from torch.nn import functional as F
 
 from simlingo_training.lidar.data import Request
 
@@ -113,7 +116,76 @@ def retention_gate(candidate, baseline):
     return {'passed':all(c['passed'] for c in checks.values()),'checks':checks}
 
 
-def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,check=None,on_record=None):
+@contextmanager
+def evaluation_state(model):
+    """Evaluation cannot consume the RNG of the next optimizer update."""
+    flags={m:m.training for m in model.modules()}
+    rng=(random.getstate(),np.random.get_state(),torch.get_rng_state(),
+         torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else None)
+    kernels=None
+    if getattr(model,'lidar_numerics_policy',{}).get('sparse_kernel_checkpointing'):
+        from simlingo_training.lidar.sparse_kernels import dump
+        kernels=dump(model)
+    try:
+        model.eval()
+        with torch.no_grad(): yield
+    finally:
+        try:
+            if kernels is not None:
+                from simlingo_training.lidar.sparse_kernels import restore
+                restore(model,kernels)
+        finally:
+            for module,flag in flags.items(): module.training=flag
+            random.setstate(rng[0]); np.random.set_state(rng[1]); torch.set_rng_state(rng[2])
+            if rng[3] is not None: torch.cuda.set_rng_state_all(rng[3])
+
+
+def diagnostic_terms(model,sample,predictions,geometry):
+    """Reuse generated driving predictions; only CE needs a teacher forward."""
+    terms={}; counts=model.loss_counts(sample)
+    if sample.language_active:
+        terms['language'],teacher_geometry=model.teacher_language_terms(sample)
+        if geometry is None: geometry=teacher_geometry
+    if predictions is not None:
+        terms['route']=F.smooth_l1_loss(predictions['route'].float(),sample.route[None],reduction='sum')
+        terms['speed']=F.smooth_l1_loss(predictions['speed_wps'].float(),sample.waypoints[None],reduction='sum')
+    if geometry is not None:
+        valid=sample.geometry['presence_valid']
+        terms['presence']=F.binary_cross_entropy_with_logits(geometry['presence'][0,valid].float(),sample.geometry['presence'][valid],reduction='sum')
+        valid=sample.geometry['distance_valid']
+        terms['distance']=(F.cross_entropy(geometry['distance'][0,valid].float(),sample.geometry['distance'][valid],reduction='sum')
+                           if valid.any() else geometry['distance'].sum()*0)
+    values={k:float(v) for k,v in terms.items()}
+    if any(not np.isfinite(v) for v in values.values()): raise ValueError('Non-finite diagnostic loss')
+    return {'numerators':values,'counts':counts}
+
+
+def summarize_diagnostics(records):
+    def losses(rows):
+        names={k for r in rows for k in r.get('diagnostics',{}).get('numerators',{})}
+        result={}
+        for k in sorted(names):
+            count=sum(r['diagnostics']['counts'].get(k,0) for r in rows)
+            numerator=sum(r['diagnostics']['numerators'].get(k,0.) for r in rows)
+            result[k]={'value':numerator/count if count else None,'count':count}
+        return result
+    sectors={}
+    for sector in range(4):
+        entries=[r['geometry_observations'][str(sector)] for r in records if str(sector) in r.get('geometry_observations',{})]
+        tp=sum(x['target'] and x['prediction'] for x in entries)
+        fp=sum(not x['target'] and x['prediction'] for x in entries)
+        fn=sum(x['target'] and not x['prediction'] for x in entries)
+        distances=[x for x in entries if x['distance_valid']]
+        sectors[str(sector)]={'observations':len(entries),'positives':sum(x['target'] for x in entries),
+            'true_positive':tp,'false_positive':fp,'false_negative':fn,
+            'precision':tp/(tp+fp) if tp+fp else None,'recall':tp/(tp+fn) if tp+fn else None,
+            'distance_count':len(distances),'distance_accuracy':sum(x['distance_correct'] for x in distances)/len(distances) if distances else None}
+    return {'losses':losses(records),'by_task':{t:losses([r for r in records if r['task']==t]) for t in sorted({r['task'] for r in records})},
+            'geometry_by_sector':sectors}
+
+
+def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,check=None,on_record=None,
+                      diagnostics=False,progress=None,device='cuda'):
     """Return records including generated examples; caller controls artifact path.
 
     RGB retention excludes geometry QA: it has no camera-grounded target. Other
@@ -121,9 +193,11 @@ def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,c
     This also evaluates the released model when called before any update.
     """
     if mode not in ('paired','rgb'): raise ValueError(mode)
-    records=[]; flags={m:m.training for m in model.modules()}; model.eval()
-    try:
-        with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
+    records=[]
+    def sync():
+        if torch.device(device).type=='cuda': torch.cuda.synchronize()
+    with evaluation_state(model):
+        with torch.autocast('cuda',dtype=torch.bfloat16) if torch.device(device).type=='cuda' else nullcontext():
             for task,items in requests.items():
                 if mode=='rgb' and task=='geometry_qa': continue
                 for item in items[:limit_per_task] if limit_per_task is not None else items:
@@ -134,11 +208,11 @@ def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,c
                     sample=dataset[request]
                     if sample.uid!=item['uid']: raise ValueError('Fixed validation UID/index mismatch')
                     if mode=='rgb': sample=replace(sample,cloud=None)
-                    sample=sample.to('cuda'); torch.cuda.synchronize(); loaded=time.monotonic()
+                    sample=sample.to(device); sync(); loaded=time.monotonic()
                     generated=model.generate_ids(sample,100) if sample.language_active else None
                     text=model.tokenizer.decode(generated[0],skip_special_tokens=True) if generated is not None else ''
                     target=model.tokenizer.decode(sample.ids[sample.answer_mask],skip_special_tokens=True)
-                    metrics={}; geometry=None
+                    metrics={}; geometry=None; predictions=None; observations={}
                     if sample.driving_active:
                         predictions,geometry=model.driving(sample,generated)
                         for key,predicted,truth in [('route_ade',predictions['route'][0],sample.route),
@@ -152,16 +226,24 @@ def evaluate_requests(model,dataset,requests,mode='paired',limit_per_task=None,c
                             valid=sample.geometry[key+'_valid']
                             for sector in range(4):
                                 if valid[sector]: metrics[f'geometry_{key}_{sector}_accuracy']=100.*float(prediction[sector]==sample.geometry[key][sector])
-                    torch.cuda.synchronize(); end=time.monotonic()
+                        if diagnostics:
+                            for sector in range(4):
+                                if sample.geometry['presence_valid'][sector]:
+                                    observations[str(sector)]={'target':bool(sample.geometry['presence'][sector]),
+                                        'prediction':bool(geometry['presence'][0,sector]>0),
+                                        'distance_valid':bool(sample.geometry['distance_valid'][sector]),
+                                        'distance_correct':bool(geometry['distance'][0,sector].argmax()==sample.geometry['distance'][sector])}
+                    terms=diagnostic_terms(model,sample,predictions,geometry) if diagnostics else None
+                    sync(); end=time.monotonic()
                     records.append({'uid':sample.uid,'group':dataset.rows[request.index]['group'],'task':task,'mode':mode,
                         'seed':request.seed,'metrics':metrics,'generated':text,'reference':target,
                         'generated_tokens':int(generated.numel()) if generated is not None else 0,
                         'teacher_tokens':len(sample.ids),'question_tokens':len(sample.question_ids),
                         'io_transfer_seconds':loaded-start,'compute_seconds':end-loaded,'total_seconds':end-start})
+                    if diagnostics: records[-1].update(diagnostics=terms,geometry_observations=observations)
                     if on_record: on_record(records[-1])
+                    if progress: progress(1)
                     del sample,generated,geometry
-    finally:
-        for module,flag in flags.items(): module.training=flag
     return {'records':records,'metrics':group_metrics(records),
             'by_task':{task:group_metrics([r for r in records if r['task']==task]) for task in requests},
             'limits':'Bounded subsets establish timings and metric execution only; no retention/safety/improvement claim'}

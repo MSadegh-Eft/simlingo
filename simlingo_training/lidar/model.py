@@ -148,17 +148,22 @@ class LidarDrivingModel(DrivingModel):
                 'presence':int(sample.geometry['presence_valid'].sum()) if paired else 0,
                 'distance':int(sample.geometry['distance_valid'].sum()) if paired else 0}
 
+    def teacher_language_terms(self, sample):
+        """Teacher-forced CE only; these answers never condition driving."""
+        context,geometry = self.context(sample,sample.ids)
+        hidden = self.hidden(context).last_hidden_state
+        prefix = 128 if sample.cloud is not None else 0
+        mask = sample.answer_mask[1:]
+        features = hidden[:,prefix:prefix+len(sample.ids)-1][0,mask]
+        labels = sample.ids[1:][mask]
+        logits = self.adaptors.language.lm_head(features)
+        loss = F.cross_entropy(logits.float(),labels,reduction='sum') if len(labels) else hidden.sum()*0
+        return loss,geometry
+
     def loss_terms(self, sample, generation_limit=100):
         terms, geometry = {},None
         if sample.language_active:
-            context,geometry = self.context(sample,sample.ids)
-            hidden = self.hidden(context).last_hidden_state
-            prefix = 128 if sample.cloud is not None else 0
-            mask = sample.answer_mask[1:]
-            features = hidden[:,prefix:prefix+len(sample.ids)-1][0,mask]
-            labels = sample.ids[1:][mask]
-            logits = self.adaptors.language.lm_head(features)
-            terms['language'] = F.cross_entropy(logits.float(),labels,reduction='sum') if len(labels) else hidden.sum()*0
+            terms['language'],geometry = self.teacher_language_terms(sample)
         predictions = None
         if sample.driving_active:
             generated = self.generate_ids(sample,generation_limit) if sample.task in ('commentary','dreamer') else None

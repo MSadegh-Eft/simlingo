@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import time
 
-from simlingo_training.lidar.evaluation import evaluate_requests,group_metrics
+from simlingo_training.lidar.evaluation import evaluate_requests,group_metrics,summarize_diagnostics
 from simlingo_training.lidar.storage import atomic_json,digest_file
 
 
@@ -32,7 +32,8 @@ def recover_journal(path,binding,expected):
     return rows
 
 
-def evaluate_complete(model,dataset,requests,mode,output,binding,check=None):
+def evaluate_complete(model,dataset,requests,mode,output,binding,check=None,
+                      complete_protocol=True,diagnostics=False,progress=None):
     output=Path(output); output.mkdir(parents=True,exist_ok=True)
     requests={t:items for t,items in requests.items() if mode!='rgb' or t!='geometry_qa'}
     expected={identity(r) for items in requests.values() for r in items}
@@ -43,15 +44,17 @@ def evaluate_complete(model,dataset,requests,mode,output,binding,check=None):
     remaining={t:[r for r in items if identity(r) not in seen] for t,items in requests.items()}
     print(f'{mode} validation: {len(rows)} recovered, {len(expected)-len(rows)} remaining; zero optimizer updates',flush=True)
     started=time.monotonic(); initial=len(rows)
+    if progress: progress(len(rows),len(expected))
     with (output/'records.jsonl').open('a') as journal:
         def record(row):
             rows.append(row); journal.write(json.dumps(row)+'\n')
+            if progress: progress(len(rows),len(expected))
             if len(rows)%32==0:
                 journal.flush(); os.fsync(journal.fileno())
                 progress={'status':'running','completed':len(rows),'expected':len(expected),
                     'this_process_seconds':time.monotonic()-started,'this_process_samples':len(rows)-initial}
                 atomic_json(output/'progress.json',progress); print(json.dumps(progress),flush=True)
-        evaluate_requests(model,dataset,remaining,mode,check=check,on_record=record)
+        evaluate_requests(model,dataset,remaining,mode,check=check,on_record=record,diagnostics=diagnostics)
         journal.flush(); os.fsync(journal.fileno())
     if {identity(r) for r in rows}!=expected or len(rows)!=len(expected): raise ValueError('Evaluation incomplete')
     metrics=group_metrics(rows); counts=Counter(r['task'] for r in rows)
@@ -62,7 +65,7 @@ def evaluate_complete(model,dataset,requests,mode,output,binding,check=None):
     uid_index={r['id']:i for i,r in enumerate(dataset.rows)}
     def bucket_rows(bucket):
         return [r for r in rows if bucket in dataset.row_buckets[uid_index[r['uid']]]]
-    report={'status':'complete','complete_protocol':True,'binding':binding,'mode':mode,
+    report={'status':'complete','complete_protocol':complete_protocol,'binding':binding,'mode':mode,
         'samples':len(rows),'task_counts':dict(counts),'metrics':metrics,'structured_target_coverage':coverage,
         'coverage_gate':{'passed':coverage_ok,'minimum_samples':100,'minimum_groups':10,'minimum_fraction':.10},
         'by_task':{t:group_metrics([r for r in rows if r['task']==t]) for t in counts},
@@ -70,6 +73,10 @@ def evaluate_complete(model,dataset,requests,mode,output,binding,check=None):
             for b in dataset.bucket_weights for selected in [bucket_rows(b)]},
         'journal_sha256':digest_file(output/'records.jsonl'),'sum_example_seconds':sum(r['total_seconds'] for r in rows),
         'limits':'Full fixed request set only; structured QA accuracy covers explicitly parseable targets, not every open-ended answer. Engineering metrics do not establish driving safety.'}
+    if diagnostics:
+        if any('diagnostics' not in r for r in rows): raise ValueError('Journal lacks required diagnostics')
+        report['diagnostics']=summarize_diagnostics(rows)
+    if not complete_protocol: report['limits']='Fixed interim diagnostics; full offline validation is required for retention.'
     atomic_json(output/'result.json',report)
     atomic_json(output/'progress.json',{'status':'complete','completed':len(rows),'expected':len(expected),'coverage_passed':coverage_ok})
     return report
