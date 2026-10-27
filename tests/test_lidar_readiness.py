@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch,MagicMock
 
 import torch
 import numpy as np
@@ -14,7 +14,8 @@ from simlingo_training.lidar.data import check_context_lengths,TASKS,TaskSampler
 from simlingo_training.lidar.storage import official_split
 from simlingo_training.lidar.runtime import TrainingSession,tensor_fingerprint
 from tools.lidar_readiness.full_baseline import recover_journal
-from simlingo_training.lidar.train import validate_config,main as training_main
+from simlingo_training.lidar.train import validate_config,run_monitored
+from simlingo_training.lidar.control import stopping_defaults
 from simlingo_training.lidar.engine import save_checkpoint,load_checkpoint
 from simlingo_training.lidar import sparse_kernels
 
@@ -55,26 +56,19 @@ class ReadinessContracts(unittest.TestCase):
 
     def test_entry_point_saves_initial_boundary_before_first_update(self):
         with tempfile.TemporaryDirectory() as root:
-            root=Path(root); manifest=root/'manifest.json'; manifest.write_text('{}')
-            import hashlib
-            sha=hashlib.sha256(manifest.read_bytes()).hexdigest()
-            metadata={'manifest_sha256':sha,'validation_sha256':'v','code':{},'external_sources':{},'versions':{}}
-            (root/'validation.json').write_text(json.dumps({'requests':{},'monitor':{}}))
-            (root/'readiness.json').write_text(json.dumps({'technical_checks_passed':True,'manifest_sha256':sha}))
-            (root/'baseline.json').write_text(json.dumps({'complete_protocol':True,'coverage_gate':{'passed':True},'binding':metadata}))
-            config={'schema':1,'stage':'align','budget_reviewed':True,'manifest':str(manifest),'output':str(root/'run'),
-                'readiness_report':str(root/'readiness.json'),'baseline_result':str(root/'baseline.json'),
-                'total_updates':750,'full_validation_updates':[750],'monitor_updates':[],
-                'checkpoint_interval_updates':15,'checkpoint_interval_seconds':1800}
-            path=root/'config.json'; path.write_text(json.dumps(config))
+            root=Path(root)
             def save(path): path.write_text('completed boundary zero')
-            def fail(**kwargs):
-                self.assertTrue((root/'run/last.pt').exists())
+            session=SimpleNamespace(updates=0,total_updates=750,metadata={},save=save,
+                model=object(),run_state={'controller':None},dataset=SimpleNamespace(augment=True),
+                optimizer=SimpleNamespace(param_groups=[{'name':'connector','lr':1.,'max_lr':1.}]))
+            def fail(*args,**kwargs):
+                self.assertTrue((root/'last.pt').exists())
                 raise RuntimeError('Injected interruption before first update')
-            session=SimpleNamespace(updates=0,total_updates=750,metadata=metadata,model=SimpleNamespace(tokenizer=None),save=save,update=fail)
-            with patch('simlingo_training.lidar.train.create_session',return_value=session),patch('simlingo_training.lidar.train.ManifestDataset'),patch('simlingo_training.lidar.train.check_resources'):
-                with self.assertRaisesRegex(RuntimeError,'Injected interruption'): training_main(path)
-            self.assertEqual((root/'run/last.pt').read_text(),'completed boundary zero')
+            with patch('simlingo_training.lidar.train.evaluate_complete',side_effect=fail),patch('simlingo_training.lidar.train.check_resources'):
+                with self.assertRaisesRegex(RuntimeError,'Injected interruption'):
+                    run_monitored(session,{'stopping':stopping_defaults('align'),'monitor_protocol_sha256':'m'},root,
+                        object(),{}, {'baseline_metrics':{},'requests':{}},{},MagicMock())
+            self.assertEqual((root/'last.pt').read_text(),'completed boundary zero')
 
     def test_initial_checkpoint_restores_before_adam_has_any_state(self):
         model=nn.Linear(1,1); model.stage='align'; optimizer=torch.optim.AdamW(model.parameters())
@@ -87,14 +81,17 @@ class ReadinessContracts(unittest.TestCase):
             self.assertTrue(torch.equal(model.weight,weight))
 
     def test_training_requires_reviewed_budget_and_final_validation(self):
-        config={'schema':1,'stage':'align','total_updates':750,'budget_reviewed':False,
-            'full_validation_updates':[750],'monitor_updates':[250,500],
+        config={'schema':2,'stage':'align','total_updates':750,'budget_reviewed':False,
+            'supervisor_permission_confirmed':False,'permission_note':'',
+            'monitor_interval_updates':125,'full_validation_policy':'candidate_then_final_on_retention_failure',
+            'monitor_protocol_sha256':'m','stopping':stopping_defaults('align'),
             'checkpoint_interval_updates':15,'checkpoint_interval_seconds':1800}
         with self.assertRaises(ValueError): validate_config(config)
-        config['budget_reviewed']=True; validate_config(config)
-        config['full_validation_updates']=[]
+        config['budget_reviewed']=True
         with self.assertRaises(ValueError): validate_config(config)
-        config['full_validation_updates']=[750,751]
+        config.update(supervisor_permission_confirmed=True,permission_note='Test fixture only')
+        validate_config(config)
+        config['full_validation_policy']='none'
         with self.assertRaises(ValueError): validate_config(config)
 
     def test_official_parking_layout_and_unknown_layout(self):

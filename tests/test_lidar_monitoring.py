@@ -19,9 +19,13 @@ from torch import nn
 from simlingo_training.lidar.control import Controller,stopping_defaults,driving_score,full_candidate_order
 from simlingo_training.lidar.data import Sample,TASKS
 from simlingo_training.lidar.evaluation import evaluate_requests,evaluation_state,summarize_diagnostics
+from simlingo_training.lidar.launch_guard import training_lock
 from simlingo_training.lidar.monitor_protocol import build_protocol
 from simlingo_training.lidar.storage import atomic_json,digest_file
+from simlingo_training.lidar.train import run_monitored,monitor_signals,atomic_copy,prelaunch_resources
 from simlingo_training.lidar.runtime import UUID
+from simlingo_training.lidar.telemetry import Reporter
+from simlingo_training.lidar.training_report import recommendations,svg_curves,write_report
 
 
 def metrics(error=1.):
@@ -75,6 +79,7 @@ class ControlTests(unittest.TestCase):
     def test_selection_requires_same_metric_population(self):
         a=metrics(); b=metrics(); b['route_ade']['population_sha256']='other'
         with self.assertRaises(ValueError): driving_score(a,b)
+        with self.assertRaises(ValueError): monitor_signals({'coverage_gate':{'passed':False}},a)
 
 
 class DiagnosticTests(unittest.TestCase):
@@ -143,6 +148,157 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(a['requests'],b['requests'])
         self.assertEqual(a['coverage']['qa']['scored_targets'],100)
         self.assertEqual(sum(map(len,a['train_requests'].values())),192)
+
+
+class LoopTests(unittest.TestCase):
+    def fixture(self,root,fail_update=None):
+        class Data:
+            augment=True
+            def __len__(self): return 1000
+        class Session:
+            def __init__(self):
+                self.updates=0; self.total_updates=750; self.metadata={'fixture':True}; self.dataset=Data()
+                self.model=nn.Linear(1,1); self.sampler=SimpleNamespace(position=0)
+                self.optimizer=SimpleNamespace(param_groups=[{'name':'connector','max_lr':1.,'lr':1.}])
+                self.run_state={'controller':None,'seen_indices':[],'task_counts':{},'replay_count':0,'bucket_counts':{},'training_seconds':0.}
+            def update(self,check=None,progress=None):
+                if self.updates==fail_update: raise RuntimeError('injected update failure')
+                self.updates+=1; self.sampler.position+=64
+                self.optimizer.param_groups[0]['lr']=.1 if self.updates>=600 else 1.
+                self.run_state['seen_indices']=list(range(min(1000,self.updates*64)))
+                return {'loss':1.}
+            def save(self,path):
+                torch.save({'updates':self.updates,'model':self.model.state_dict(),'metadata':self.metadata,
+                    'sparse_kernels':None,'run_state':copy.deepcopy(self.run_state),'lr':self.optimizer.param_groups[0]['lr']},path)
+            def resume(self,path):
+                state=torch.load(path,weights_only=False); self.updates=state['updates']; self.sampler.position=self.updates*64
+                self.run_state=state['run_state']; self.model.load_state_dict(state['model'])
+                self.optimizer.param_groups[0]['lr']=state['lr']
+        config={'stage':'align','stopping':stopping_defaults('align'),'monitor_protocol_sha256':'m',
+                'checkpoint_interval_updates':15,'total_updates':750}
+        return Session(),config
+
+    def evaluator(self,fail_full_candidate=False):
+        calls=[]
+        def evaluate(model,dataset,requests,mode,path,binding,**kwargs):
+            path=Path(path); calls.append(str(path))
+            error=1.2 if fail_full_candidate and 'full-125/rgb' in str(path) else 1.
+            report={'coverage_gate':{'passed':True},'complete_protocol':kwargs.get('complete_protocol',True),
+                'metrics':metrics(error),'diagnostics':{'losses':{k:{'value':1.,'count':100} for k in ('language','presence','distance')}}}
+            path.mkdir(parents=True,exist_ok=True); atomic_json(path/'result.json',report)
+            return report
+        return evaluate,calls
+
+    def run_loop(self,session,config,root,evaluator,resume=None):
+        with patch('simlingo_training.lidar.train.evaluate_complete',side_effect=evaluator), \
+             patch('simlingo_training.lidar.train.check_resources'), \
+             patch('simlingo_training.lidar.sparse_kernels.restore'), \
+             patch('simlingo_training.lidar.training_report.write_report',return_value={'fixture':True}):
+            return run_monitored(session,config,root,object(),{'requests':{}},
+                {'requests':{},'train_requests':{},'baseline_metrics':metrics()},
+                {'metrics':metrics()},MagicMock(),resume)
+
+    def test_committed_decision_recovers_once_and_full_failure_uses_final_fallback(self):
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root); session,config=self.fixture(root,fail_update=126); evaluate,calls=self.evaluator(True)
+            with self.assertRaisesRegex(RuntimeError,'injected'): self.run_loop(session,config,root,evaluate)
+            self.assertEqual(session.updates,126)
+            recovered,config=self.fixture(root); recovered.resume(root/'last.pt')
+            self.assertEqual(recovered.updates,125)
+            count=calls.count(str(root/'monitor-125/paired'))
+            self.run_loop(recovered,config,root,evaluate,root/'last.pt')
+            self.assertEqual(calls.count(str(root/'monitor-125/paired')),count)
+            self.assertEqual(recovered.updates,625)
+            final=json.loads((root/'complete.json').read_text())
+            self.assertEqual(final['stop_reason'],'validation_plateau')
+            self.assertEqual(final['selected']['update'],625)
+            self.assertEqual(len(json.loads((root/'selection.json').read_text())['checks']),2)
+            decision=json.loads((root/'decisions/00000625.json').read_text())
+            self.assertEqual([r['update'] for r in decision['controller']['history']],[0,125,250,375,500,625])
+
+    def test_interrupted_monitor_resumes_before_another_optimizer_update(self):
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root); session,config=self.fixture(root); evaluate,calls=self.evaluator()
+            def interrupted(*a,**kw):
+                if str(a[4]).endswith('monitor-125/rgb'): raise RuntimeError('interrupted monitor')
+                return evaluate(*a,**kw)
+            with self.assertRaisesRegex(RuntimeError,'interrupted monitor'): self.run_loop(session,config,root,interrupted)
+            self.assertEqual(session.updates,125)
+            recovered,config=self.fixture(root); recovered.resume(root/'last.pt')
+            self.run_loop(recovered,config,root,evaluate,root/'last.pt')
+            self.assertTrue((root/'decisions/00000125.json').exists())
+            self.assertEqual(len(json.loads((root/'selection.json').read_text())['checks']),1)
+
+    def test_failed_candidate_copy_is_recoverable_without_false_committed_decision(self):
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root); session,config=self.fixture(root); evaluate,_=self.evaluator()
+            with patch('simlingo_training.lidar.train.atomic_copy',side_effect=OSError('interrupted checkpoint copy')):
+                with self.assertRaises(OSError): self.run_loop(session,config,root,evaluate)
+            self.assertFalse((root/'decisions/00000125.json').exists())
+            recovered,config=self.fixture(root); recovered.resume(root/'last.pt')
+            self.run_loop(recovered,config,root,evaluate,root/'last.pt')
+            self.assertTrue((root/'complete.json').exists())
+
+
+class ReportTests(unittest.TestCase):
+    def test_report_artifacts_include_matched_loss_curves_examples_and_evidence_for_advice(self):
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root); controller=Controller(stopping_defaults('align'))
+            for u,train_loss,val_loss in [(0,2.,2.),(125,1.8,2.2),(250,1.6,2.4)]:
+                controller.observe(u,750,1.,1.,1.,{'passed':True},[1.],{})
+                for mode,loss in [('train',train_loss),('paired',val_loss),('rgb',val_loss)]:
+                    path=root/f'monitor-{u}'/mode; path.mkdir(parents=True)
+                    atomic_json(path/'result.json',{'metrics':metrics(),'by_scenario_bucket':{},
+                        'diagnostics':{'by_task':{'qa':{'language':{'value':loss,'count':100}}}}})
+                (root/f'monitor-{u}/paired/records.jsonl').write_text(json.dumps({'uid':'u','group':'g','task':'qa',
+                    'generated':'yes','reference':'no','metrics':{}})+'\n')
+            tracking={'seen_indices':[0,1],'task_counts':{'qa':192},'replay_count':0,'bucket_counts':{}}
+            result=write_report(root,{'stage':'align'},controller.state,tracking,{'selected':None}, {},{'baseline_metrics':metrics()})
+            for name in ('report.json','report.md','report.html','learning-curves.csv','learning-curves.svg'):
+                self.assertTrue((root/name).stat().st_size)
+            self.assertEqual(result['training_language_loss'],[2.,1.8,1.6])
+            self.assertEqual(result['matched_validation_language_loss'],[2.,2.2,2.4])
+            self.assertTrue(any('overfitting' in r['action'] for r in result['recommendations']))
+            self.assertEqual(result['examples'][0]['reference'],'no')
+
+
+class TerminalTests(unittest.TestCase):
+    def test_atomic_copy_preserves_existing_checkpoint_on_interrupted_write(self):
+        with tempfile.TemporaryDirectory() as root:
+            root=Path(root); source=root/'source.pt'; target=root/'candidate.pt'
+            source.write_bytes(b'new checkpoint'); target.write_bytes(b'previous checkpoint')
+            def interrupted(src,dst,*args):
+                dst.write(b'partial'); raise OSError('interrupted write')
+            with patch('shutil.copyfileobj',side_effect=interrupted):
+                with self.assertRaises(OSError): atomic_copy(source,target)
+            self.assertEqual(target.read_bytes(),b'previous checkpoint')
+            atomic_copy(source,target); self.assertEqual(target.read_bytes(),source.read_bytes())
+
+    def test_non_tty_status_tracks_accumulation_and_writes_plain_log(self):
+        with tempfile.TemporaryDirectory() as root,patch('sys.stderr',io.StringIO()):
+            reporter=Reporter(root,'align',750)
+            try:
+                with reporter.accumulation() as advance: advance(16); advance(48)
+                reporter.status(force=True)
+                reporter.event('fixture_complete',updates=0)
+            finally: reporter.close()
+            status=json.loads((Path(root)/'status.json').read_text())
+            self.assertEqual(status['accumulation_completed'],64)
+            self.assertIn('fixture_complete',(Path(root)/'training.log').read_text())
+            self.assertNotIn('\x1b',(Path(root)/'training.log').read_text())
+
+    def test_busy_gpu_fails_before_model_construction(self):
+        with patch('subprocess.check_output',return_value='GPU-'+UUID+', 2300\n'):
+            with self.assertRaisesRegex(MemoryError,'40 GiB'): prelaunch_resources('/tmp')
+
+    def test_single_process_lock_is_released_after_exit(self):
+        with tempfile.TemporaryDirectory() as root:
+            path=Path(root)/'run.lock'
+            with training_lock(path):
+                with self.assertRaises(RuntimeError):
+                    with training_lock(path): pass
+            with training_lock(path): pass
+
 
 
 if __name__=='__main__': unittest.main()

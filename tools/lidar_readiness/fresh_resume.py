@@ -13,7 +13,7 @@ import torch
 
 from simlingo_training.lidar.runtime import check_resources,sample_fingerprint
 from simlingo_training.lidar.storage import atomic_json,digest_file
-from simlingo_training.lidar.train import create_session
+from simlingo_training.lidar.train import create_session,prelaunch_resources
 
 
 def compare(values,expected):
@@ -27,6 +27,7 @@ def compare(values,expected):
 
 
 def main(manifest,output,stage,phase,context_audit=None,total_updates=None,initial_weights=None,handoff=None):
+    prelaunch_resources(output)
     output.mkdir(parents=True,exist_ok=True)
     print('Constructing production training session for '+phase,flush=True)
     config={'purpose':'Disposable fresh-process readiness check','entrypoint_sha256':digest_file(__file__)}
@@ -88,6 +89,8 @@ def main(manifest,output,stage,phase,context_audit=None,total_updates=None,initi
         'torch_rng':torch.equal(torch.get_rng_state(),rng['torch']),
         'cuda_rng':all(torch.equal(a,b) for a,b in zip(torch.cuda.get_rng_state_all(),rng['cuda'])),
         'completed_boundary':session.updates==expected_state['updates']==2 and session.sampler.position==128}
+    checks['tracking']=all(session.run_state[k]==expected_state['run_state'][k]
+                           for k in ('seen_indices','task_counts','replay_count','bucket_counts'))
     report={'passed':all(checks.values()),'checks':checks,'stage':stage,'model':model_comparison,'optimizer':optimizer_comparison,
         'reference_pid':reference['pid'],'resume_pid':os.getpid(),'accumulation':64,'generation_cap':100,
         'manifest_sha256':dataset.manifest_hash,'metadata':session.metadata,
@@ -106,6 +109,8 @@ def main(manifest,output,stage,phase,context_audit=None,total_updates=None,initi
     if context_audit:
         from tools.lidar_readiness.stress_bounds import run
         run(model,dataset,context_audit,output)
+        report['stress_evidence_sha256']=digest_file(output/'global-stress.json')
+        atomic_json(output/'result.json',report)
     boundary.unlink()
     if handoff:
         if stage!='align' or handoff.exists(): raise ValueError('Invalid disposable alignment handoff')
@@ -119,4 +124,6 @@ if __name__=='__main__':
     p.add_argument('--context-audit',type=Path)
     p.add_argument('--total-updates',type=int)
     p.add_argument('--initial-weights',type=Path); p.add_argument('--handoff',type=Path)
-    args=p.parse_args(); main(args.manifest,args.output,args.stage,args.phase,args.context_audit,args.total_updates,args.initial_weights,args.handoff)
+    args=p.parse_args()
+    from simlingo_training.lidar.launch_guard import training_lock
+    with training_lock(): main(args.manifest,args.output,args.stage,args.phase,args.context_audit,args.total_updates,args.initial_weights,args.handoff)

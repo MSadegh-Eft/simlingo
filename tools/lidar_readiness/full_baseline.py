@@ -14,6 +14,8 @@ from simlingo_training.lidar.validation_run import evaluate_complete,recover_jou
 
 
 def main(manifest,output):
+    from simlingo_training.lidar.train import prelaunch_resources
+    prelaunch_resources(output)
     output.mkdir(parents=True,exist_ok=True); initialize_device(output)
     ready=json.loads((manifest.parent/'ready.json').read_text())
     for key,name in [('manifest_sha256','manifest.json'),('validation_sha256','validation.json'),('audit_sha256','audit.json')]:
@@ -34,4 +36,6 @@ def main(manifest,output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__); p.add_argument('--manifest',type=Path,required=True); p.add_argument('--output',type=Path,required=True)
-    args=p.parse_args(); main(args.manifest,args.output)
+    args=p.parse_args()
+    from simlingo_training.lidar.launch_guard import training_lock
+    with training_lock(): main(args.manifest,args.output)

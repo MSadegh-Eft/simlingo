@@ -1,0 +1,26 @@
+{
+  "schema": 2,
+  "stage": "align",
+  "budget_reviewed": false,
+  "supervisor_permission_confirmed": false,
+  "permission_note": "",
+  "manifest": "/ehsan/m.sadegh/simlingo_lidar/stage2/pilot-parking-v2/manifest.json",
+  "readiness_report": "/ehsan/m.sadegh/simlingo_lidar/readiness-monitored-v1/result.json",
+  "baseline_result": "/ehsan/m.sadegh/simlingo_lidar/readiness-monitored-v1/baseline/result.json",
+  "monitor_protocol": "/ehsan/m.sadegh/simlingo_lidar/readiness-monitored-v1/monitor-protocol.json",
+  "monitor_protocol_sha256": "d0555e5870de09b900c935e973bdacec27edb16431268eaed8ad419f9fe574e1",
+  "total_updates": 750,
+  "monitor_interval_updates": 125,
+  "full_validation_policy": "candidate_then_final_on_retention_failure",
+  "stopping": {
+    "patience": 3,
+    "score_relative_delta": 0.005,
+    "loss_relative_delta": 0.01,
+    "minimum_updates": 500,
+    "maximum_lr_fraction": 0.25
+  },
+  "checkpoint_interval_updates": 15,
+  "checkpoint_interval_seconds": 1800,
+  "initial_weights_sha256": null,
+  "output": "/ehsan/m.sadegh/simlingo_lidar/stage4/align-monitored-v1"
+}
